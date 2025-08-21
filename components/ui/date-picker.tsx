@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/popover"
 
 interface IProps {
+    placeholder?: string;
     date: Date | undefined;
     setDate: (e: Date | undefined) => void;
+    onChange?: (e: Date | undefined) => void;
 }
 
-export function DatePicker({ date, setDate }: IProps) {
+export function DatePicker({ date, setDate, onChange, placeholder = "Select date" }: IProps) {
     const [open, setOpen] = React.useState(false)
 
     return (
@@ -28,7 +30,7 @@ export function DatePicker({ date, setDate }: IProps) {
                         id="date"
                         className="lg:w-48 justify-between font-normal"
                     >
-                        {date ? date.toLocaleDateString() : "Select date"}
+                        {date ? date.toLocaleDateString() : placeholder}
                         <ChevronDownIcon />
                     </Button>
                 </PopoverTrigger>
@@ -40,6 +42,8 @@ export function DatePicker({ date, setDate }: IProps) {
                         onSelect={(date) => {
                             setDate(date)
                             setOpen(false)
+                            if (onChange)
+                                onChange(date)
                         }}
                     />
                 </PopoverContent>

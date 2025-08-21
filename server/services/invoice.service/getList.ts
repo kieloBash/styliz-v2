@@ -1,16 +1,24 @@
 import { SearchInvoiceSchema } from "@/app/(protected)/dashboard/_schemas";
+import { DATE_FORMAT_SHORT } from "@/constants/formats";
 import { protectedProcedure } from "@/server/trpc/init";
 import { FullInvoiceType } from "@/types/db";
 import { QueryPayloadType } from "@/types/global";
 import { logger } from "@/utils/logger";
+import { endOfDay, parse, startOfDay } from "date-fns";
 
 export const getInvoiceList = protectedProcedure
     .input(SearchInvoiceSchema)
     .query(async ({ input, ctx }): Promise<QueryPayloadType<FullInvoiceType[]>> => {
         try {
-            const { customerName, status, limit, page } = input;
+            const { customerName, status, limit, page, from, to } = input;
 
             const where: any = {
+                ...(from && to && {
+                    dateIssued: {
+                        gte: startOfDay(parse(from, DATE_FORMAT_SHORT, new Date())),
+                        lte: endOfDay(parse(to, DATE_FORMAT_SHORT, new Date()))
+                    }
+                }),
                 ...(status && status !== "all" ? { status: status } : {}),
                 ...(customerName
                     ? {

@@ -8,10 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useDebounce } from '@/hooks/use-Debounce'
 import { trpc } from '@/server/trpc/client'
 import { InvoiceStatus } from '@prisma/client'
-import { ChevronLeft, ChevronRight, CopyIcon, FileText, Search, Zap } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CopyIcon, Edit2, FileText, Search, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { useUserDashboardStore } from '../../_stores/userDashboardStore'
+import { DatePicker } from '@/components/ui/date-picker'
+import { formatDate } from 'date-fns'
+import { DATE_FORMAT_SHORT } from '@/constants/formats'
 
 const UserDashboard = () => {
     const searchParams = useSearchParams()
@@ -19,6 +23,14 @@ const UserDashboard = () => {
     const page = searchParams.get("page") ?? "1"
     const filterStatusParams = searchParams.get("status") ?? "all"
     const filterSearchParams = searchParams.get("search") ?? ""
+    const filterFromDateParams = searchParams.get("from")
+    const filterToDateParams = searchParams.get("to")
+
+    const [from, setFrom] = useState<Date | undefined>(filterFromDateParams ? new Date(filterFromDateParams) : undefined);
+    const [to, setTo] = useState<Date | undefined>(filterToDateParams ? new Date(filterToDateParams) : undefined);
+    const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
+
+    const { actions } = useUserDashboardStore();
 
     const router = useRouter();
 
@@ -34,8 +46,29 @@ const UserDashboard = () => {
         handleChangeStatusFilter(filterStatus);
     }, [filterStatus])
 
-    const { data } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: debouncedSearch, status: filterStatus });
+    const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: debouncedSearch, status: filterStatus, from: getFormattedDate(from), to: getFormattedDate(to) });
     const filteredInvoices = useMemo(() => data?.payload ?? [], [data])
+
+    const handleCopy = async (inv: any) => { actions.setSelectedInvoice(inv) }
+    const handleEdit = async (inv: any) => { actions.setSelectedInvoice(inv) }
+
+    const handleChangeDateFrom = (newDate: Date | undefined) => {
+        const params = new URLSearchParams(searchParams.toString());
+        const date = newDate ? formatDate(newDate, DATE_FORMAT_SHORT) : "";
+
+        params.set("from", date);
+        params.set("page", "1");
+        router.push(`?${params.toString()}`);
+    }
+
+    const handleChangeDateTo = (newDate: Date | undefined) => {
+        const params = new URLSearchParams(searchParams.toString());
+        const date = newDate ? formatDate(newDate, DATE_FORMAT_SHORT) : "";
+
+        params.set("to", date);
+        params.set("page", "1");
+        router.push(`?${params.toString()}`);
+    }
 
     const handleChangeLimit = (newLimit: string) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -62,6 +95,23 @@ const UserDashboard = () => {
         params.set("search", newSearch);
         params.set("page", "1");
         router.push(`?${params.toString()}`);
+    }
+
+    const getItemsLoader = () => {
+        return (
+            <TableRow>
+                <TableCell colSpan={9} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                            <FileText className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <div className="text-gray-500">
+                            Fetching invoices, please wait...
+                        </div>
+                    </div>
+                </TableCell>
+            </TableRow>
+        )
     }
 
     return (
@@ -100,9 +150,23 @@ const UserDashboard = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value={InvoiceStatus.COMPLETED}>{InvoiceStatus.COMPLETED}</SelectItem>
+                                    {Object.keys(InvoiceStatus).map(status => (
+                                        <SelectItem key={status} value={status}>{status}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
+                            <DatePicker
+                                placeholder="Date from"
+                                onChange={handleChangeDateFrom}
+                                date={from}
+                                setDate={setFrom}
+                            />
+                            <DatePicker
+                                placeholder="Date to"
+                                onChange={handleChangeDateTo}
+                                date={to}
+                                setDate={setTo}
+                            />
                         </div>
                     </div>
                 </CardHeader>
@@ -119,71 +183,85 @@ const UserDashboard = () => {
                                     <TableHead className="font-semibold text-gray-700">Total</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Date</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Status</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Actions</TableHead>
+                                    <TableHead className="font-semibold text-gray-700 text-center">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredInvoices.length > 0 ? (
-                                    filteredInvoices.map((invoice) => (
-                                        <TableRow key={invoice.id} className="border-red-50 hover:bg-red-50/50">
-                                            <TableCell className="font-medium text-gray-900">{invoice.customer.name}</TableCell>
-                                            <TableCell className="font-medium text-gray-900">{invoice.seller.name}</TableCell>
-                                            <TableCell className="text-gray-700">{invoice.items.length} items</TableCell>
-                                            <TableCell className="text-gray-700 text-sm">{invoice.platform.name}</TableCell>
-                                            <TableCell className="text-gray-700 text-sm">{invoice.freebies} items</TableCell>
-                                            <TableCell className="font-semibold text-gray-900">
-                                                ₱{invoice.subTotal}</TableCell>
-                                            <TableCell className="text-gray-700">{new Date(invoice.dateIssued).toDateString()}</TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant={invoice.status === InvoiceStatus.COMPLETED ? "default" : "secondary"}
-                                                    className={
-                                                        invoice.status === InvoiceStatus.COMPLETED
-                                                            ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0"
-                                                            : invoice.status === InvoiceStatus.RTS
-                                                                ? "bg-gradient-to-r from-red-400 to-pink-500 text-white border-0"
-                                                                : "bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0"
-                                                    }
-                                                >
-                                                    {invoice.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                                >
-                                                    <CopyIcon className="h-4 w-4" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={9} className="text-center py-12">
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                                                    <FileText className="h-8 w-8 text-gray-400" />
-                                                </div>
-                                                <div className="text-gray-500">
-                                                    {searchTerm || filterStatus !== "all"
-                                                        ? "No invoices found matching your search criteria"
-                                                        : "No invoices yet. Start your first live sale!"
-                                                    }
-                                                </div>
-                                                {!searchTerm && filterStatus === "all" && (
-                                                    <Link href="/live">
-                                                        <Button className="mt-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white">
-                                                            <Zap className="h-4 w-4 mr-2" />
-                                                            Create First Invoice
-                                                        </Button>
-                                                    </Link>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
+                                {isLoading ? getItemsLoader() :
+                                    <>
+                                        {filteredInvoices.length > 0 ? (
+                                            filteredInvoices.map((invoice) => (
+                                                <TableRow key={invoice.id} className="border-red-50 hover:bg-red-50/50">
+                                                    <TableCell className="font-medium text-gray-900">{invoice.customer.name}</TableCell>
+                                                    <TableCell className="font-medium text-gray-900">{invoice.seller.name}</TableCell>
+                                                    <TableCell className="text-gray-700">{invoice.items.length} items</TableCell>
+                                                    <TableCell className="text-gray-700 text-sm">{invoice.platform.name}</TableCell>
+                                                    <TableCell className="text-gray-700 text-sm">{invoice.freebies} items</TableCell>
+                                                    <TableCell className="font-semibold text-gray-900">
+                                                        ₱{invoice.subTotal}</TableCell>
+                                                    <TableCell className="text-gray-700">{new Date(invoice.dateIssued).toDateString()}</TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                            variant={invoice.status === InvoiceStatus.COMPLETED ? "default" : "secondary"}
+                                                            className={
+                                                                invoice.status === InvoiceStatus.COMPLETED
+                                                                    ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0"
+                                                                    : invoice.status === InvoiceStatus.RTS
+                                                                        ? "bg-gradient-to-r from-red-400 to-pink-500 text-white border-0"
+                                                                        : "bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0"
+                                                            }
+                                                        >
+                                                            {invoice.status}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-2 items-center justify-center">
+                                                            <Button
+                                                                onClick={() => handleCopy(invoice)}
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                                                            >
+                                                                <CopyIcon className="h-4 w-4" /> Copy
+                                                            </Button>
+                                                            <Button
+                                                                onClick={() => handleEdit(invoice)}
+                                                                variant="ghost"
+                                                                className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                                                            >
+                                                                <Edit2 className="h-4 w-4" />
+                                                                Edit
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={9} className="text-center py-12">
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                                            <FileText className="h-8 w-8 text-gray-400" />
+                                                        </div>
+                                                        <div className="text-gray-500">
+                                                            {searchTerm || filterStatus !== "all"
+                                                                ? "No invoices found matching your search criteria"
+                                                                : "No invoices yet. Start your first live sale!"
+                                                            }
+                                                        </div>
+                                                        {!searchTerm && filterStatus === "all" && (
+                                                            <Link href="/live">
+                                                                <Button className="mt-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white">
+                                                                    <Zap className="h-4 w-4 mr-2" />
+                                                                    Create First Invoice
+                                                                </Button>
+                                                            </Link>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </>}
                             </TableBody>
                         </Table>
                     </div>

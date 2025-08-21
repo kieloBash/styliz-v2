@@ -1,0 +1,1 @@
+export const DATE_FORMAT_SHORT = "MM/dd/yyyy";
