@@ -10,7 +10,7 @@ const BottomCartDisplay = () => {
     const utils = trpc.useUtils();
 
     const { data } = trpc.category.getList.useQuery();
-    const { taxRate, items, selectedSeller, selectedCustomer, actions, selectedDate } = useInvoiceStore();
+    const { taxRate, items, selectedSeller, selectedCustomer, actions, selectedDate, selectedPlatform } = useInvoiceStore();
     const { mutate } = trpc.invoice.create.useMutation({
         onMutate: () => {
             setIsLoading(true)
@@ -20,8 +20,7 @@ const BottomCartDisplay = () => {
             showToast("success", "Success", data.message)
             utils.invoice.getList.invalidate()
             utils.customer.getList.invalidate()
-            actions.reset();
-
+            actions.clearItems();
         },
         onError: (error) => {
             showToast("error", "Something went wrong!", error.message)
@@ -39,7 +38,7 @@ const BottomCartDisplay = () => {
     const totalItems = items.length
 
     const handleSaveInvoice = async () => {
-        if (!selectedSeller || !selectedCustomer || !selectedDate) return null;
+        if (!selectedSeller || !selectedCustomer || !selectedDate || !selectedPlatform) return null;
 
         mutate({
             items,
@@ -49,6 +48,7 @@ const BottomCartDisplay = () => {
             customerName: selectedCustomer.name,
             sellerId: selectedSeller.id,
             dateIssued: selectedDate.toISOString(),
+            platformId: selectedPlatform.id
         });
 
     }

@@ -2,6 +2,7 @@ import { authRouter } from "../services/auth.service";
 import { categoriesRoute } from "../services/categories.service";
 import { customerRoute } from "../services/customer.service";
 import { invoiceRoute } from "../services/invoice.service";
+import { platformRoute } from "../services/platform.service";
 import { sellerRouter } from "../services/seller.service";
 import { router } from "../trpc/init";
 
@@ -10,7 +11,8 @@ export const appRouter = router({
     seller: sellerRouter,
     customer: customerRoute,
     category: categoriesRoute,
-    invoice: invoiceRoute
+    invoice: invoiceRoute,
+    platform: platformRoute,
 })
 
 export type AppRouter = typeof appRouter;

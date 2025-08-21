@@ -4,3 +4,8 @@ export enum UserRole {
     STAFF = 'STAFF',
     GUEST = 'GUEST',
 }
+
+export enum PlatformType {
+    SHOPEE = 'Shopee',
+    TIKTOK = 'TikTok',
+}

@@ -3,6 +3,7 @@ import { trpc } from '@/server/trpc/client'
 import { DollarSign, Gift } from 'lucide-react'
 import { useState } from 'react'
 import { useInvoiceStore } from '../_stores/invoiceStore'
+import { ItemStatus } from '@prisma/client'
 
 
 const ItemsGridDisplay = () => {
@@ -15,7 +16,8 @@ const ItemsGridDisplay = () => {
         actions.addItem({
             categoryId,
             price,
-            isFreebie
+            isFreebie,
+            status: ItemStatus.COMPLETED
         })
     }
 

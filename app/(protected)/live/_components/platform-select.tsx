@@ -2,13 +2,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCurrentUser } from '@/hooks/use-Session'
 import { trpc } from '@/server/trpc/client'
 import { UserRole } from '@/types/roles'
-import { User } from 'lucide-react'
+import { BoxIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { useInvoiceStore } from '../_stores/invoiceStore'
 
-const SellerSelectBar = () => {
-    const { data } = trpc.seller.getList.useQuery();
-    const { actions, selectedSeller } = useInvoiceStore();
+const PlatformSelectBar = () => {
+    const { data } = trpc.platform.getList.useQuery();
+    const { actions, selectedPlatform } = useInvoiceStore();
 
     const user = useCurrentUser();
 
@@ -20,21 +20,21 @@ const SellerSelectBar = () => {
 
     return (
         <div className="w-full">
-            <Select value={selectedSeller?.id} onValueChange={(e) => {
+            <Select value={selectedPlatform?.id} onValueChange={(e) => {
                 const selected = data?.payload?.find(d => d.id === e)
-                if (selected)
-                    actions.setSelectedSeller(selected);
+                if (selected) {
+                    actions.setSelectedPlatform(selected);
+                }
             }}>
                 <SelectTrigger className="w-full h-12 border-rose-300 hover:bg-rose-50 hover:border-rose-400 rounded-xl text-left justify-start">
-                    <User className="h-4 w-4 mr-3 text-rose-600" />
-                    <SelectValue placeholder="Select Seller" />
+                    <BoxIcon className="h-4 w-4 mr-3 text-rose-600" />
+                    <SelectValue placeholder="Select Platform" />
                 </SelectTrigger>
                 <SelectContent>
-                    {data?.payload?.map((seller) => (
-                        <SelectItem key={seller.id} value={seller.id}>
+                    {data?.payload?.map((platform) => (
+                        <SelectItem key={platform.id} value={platform.id}>
                             <div className="flex flex-col">
-                                <span className="font-medium">{seller.name}</span>
-                                <span className="text-sm text-gray-500">{seller.email}</span>
+                                <span className="font-medium">{platform.name}</span>
                             </div>
                         </SelectItem>
                     ))}
@@ -44,4 +44,4 @@ const SellerSelectBar = () => {
     )
 }
 
-export default SellerSelectBar
+export default PlatformSelectBar

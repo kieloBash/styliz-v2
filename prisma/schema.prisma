@@ -177,7 +177,8 @@ model Customer {
 }
 
 enum InvoiceStatus {
-  PENDING
+  JOYJOY
+  RTS
   COMPLETED
 }
 
@@ -190,7 +191,7 @@ model Invoice {
   tax        Int
   grandTotal Int
   freebies   Int?          @default(0)
-  status     InvoiceStatus @default(PENDING)
+  status     InvoiceStatus @default(COMPLETED)
 
   dateDelivered DateTime
   dateIssued    DateTime @default(now())
@@ -201,6 +202,9 @@ model Invoice {
 
   sellerId String
   seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  platformId String
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
 
   @@index([dateDelivered])
   @@index([dateIssued])
@@ -221,12 +225,20 @@ model ItemCategory {
   @@map("item-categories")
 }
 
+enum ItemStatus {
+  CANCELLED
+  JOYJOY
+  RTS
+  COMPLETED
+}
+
 model Item {
   id        String @id @default(cuid())
   invoiceId String
 
   price      Int
   categoryId String
+  status     ItemStatus @default(COMPLETED)
 
   invoice  Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   category ItemCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -234,4 +246,13 @@ model Item {
   @@index([invoiceId])
   @@index([categoryId])
   @@map("items")
+}
+
+model Platform {
+  id   String @id @default(cuid())
+  name String @unique
+
+  invoices Invoice[]
+
+  @@map("platforms")
 }

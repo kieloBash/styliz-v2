@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-Debounce';
 import { trpc } from '@/server/trpc/client';
-import { Badge, Plus, Search, User } from 'lucide-react';
+import { Plus, Search, User } from 'lucide-react';
 import { useState } from 'react';
 import { useInvoiceStore } from '../_stores/invoiceStore';
-import { useDebounce } from '@/hooks/use-Debounce';
 
 const CustomerSelectBar = () => {
     const [customerInput, setCustomerInput] = useState("") // New state for customer input
@@ -15,8 +15,37 @@ const CustomerSelectBar = () => {
     const { data, isLoading } = trpc.customer.getList.useQuery({ name: debouncedInput });
     const filteredCustomers = data?.payload ?? []
 
+    const handleAddNewCustomer = async () => {
+        actions.setSelectedCustomer({ id: `new-${Date.now()}`, name: customerInput });
+        setShowCustomerDropdown(false);
+    }
+
+    const handleAddExistingCustomer = async (customer: {
+        id: string;
+        name: string;
+    }) => {
+        actions.setSelectedCustomer(customer);
+        setCustomerInput(customer.name);
+        setShowCustomerDropdown(false);
+    }
+
+    const handlePress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        switch (e.key) {
+            case "Enter":
+                e.preventDefault();
+                const existingCustomer = filteredCustomers.find(c => c.name.toLowerCase().includes(customerInput.toLowerCase()))
+                if (existingCustomer) {
+                    handleAddExistingCustomer(existingCustomer)
+                } else {
+                    handleAddNewCustomer();
+                }
+                break;
+            default: break;
+        }
+    }
+
     return (
-        <div className="bg-white/90 backdrop-blur-sm border-b border-rose-200 px-4 py-3 relative z-[10]">
+        <div className="bg-white/90 backdrop-blur-sm px-4 py-3 relative z-[10]">
             {!selectedCustomer ? (
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -27,6 +56,7 @@ const CustomerSelectBar = () => {
                             setCustomerInput(e.target.value);
                             setShowCustomerDropdown(true);
                         }}
+                        onKeyDown={handlePress}
                         onFocus={() => setShowCustomerDropdown(true)}
                         onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 100)}
                         className="pl-10 border-rose-200 focus:border-rose-400 focus:ring-rose-400 rounded-xl h-12"
@@ -38,11 +68,7 @@ const CustomerSelectBar = () => {
                                     <Button
                                         key={customer.id}
                                         variant="ghost"
-                                        onClick={() => {
-                                            actions.setSelectedCustomer(customer);
-                                            setCustomerInput(customer.name);
-                                            setShowCustomerDropdown(false);
-                                        }}
+                                        onClick={() => { handleAddExistingCustomer(customer) }}
                                         className="w-full justify-start hover:bg-rose-50 rounded-lg p-3 h-auto"
                                     >
                                         <div className="flex items-center gap-3">
@@ -65,10 +91,7 @@ const CustomerSelectBar = () => {
                             {customerInput && !filteredCustomers.some(c => c.name.toLowerCase() === customerInput.toLowerCase()) && (
                                 <Button
                                     variant="ghost"
-                                    onClick={() => {
-                                        actions.setSelectedCustomer({ id: `new-${Date.now()}`, name: customerInput });
-                                        setShowCustomerDropdown(false);
-                                    }}
+                                    onClick={handleAddNewCustomer}
                                     className="w-full justify-start hover:bg-rose-50 rounded-lg p-3 h-auto border-t border-rose-100"
                                 >
                                     <Plus className="h-4 w-4 mr-2 text-rose-600" />

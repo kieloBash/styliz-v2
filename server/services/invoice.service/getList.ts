@@ -1,9 +1,12 @@
 import { SearchInvoiceSchema } from "@/app/(protected)/dashboard/_schemas";
 import { protectedProcedure } from "@/server/trpc/init";
+import { FullInvoiceType } from "@/types/db";
+import { QueryPayloadType } from "@/types/global";
+import { logger } from "@/utils/logger";
 
 export const getInvoiceList = protectedProcedure
     .input(SearchInvoiceSchema)
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input, ctx }): Promise<QueryPayloadType<FullInvoiceType[]>> => {
         try {
             const { customerName, status, limit, page } = input;
 
@@ -30,12 +33,19 @@ export const getInvoiceList = protectedProcedure
                         customer: {
                             select: { id: true, name: true },
                         },
+                        seller: {
+                            select: { id: true, name: true }
+                        },
                         status: true,
                         items: {
                             select: { price: true, categoryId: true },
                         },
+                        platform: {
+                            select: { name: true }
+                        },
                         dateIssued: true,
                         subTotal: true,
+                        freebies: true,
                     },
                     take: limit,
                     skip: (page - 1) * limit,
@@ -47,8 +57,9 @@ export const getInvoiceList = protectedProcedure
             ]);
 
             return {
+                success: true,
                 message: "Successfully fetched invoices",
-                payload: data,
+                payload: data as any,
                 meta: {
                     total,
                     page,
@@ -56,9 +67,12 @@ export const getInvoiceList = protectedProcedure
                 },
             };
         } catch (error) {
+            const message = "failed to fetch invoices";
+            logger.info(`Error: ${message}`, { error });
+
             return {
                 success: false,
-                message: "Failed to fetch invoices",
+                message,
             };
         }
     });

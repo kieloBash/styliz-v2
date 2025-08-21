@@ -8,6 +8,7 @@ export const SearchCustomerSchema = z.object({
 
 export type CreateInvoiceType = z.infer<typeof CreateInvoiceSchema>;
 export const CreateInvoiceSchema = z.object({
+    platformId: z.string().min(1, "Platform is required"),
     customerName: z.string().min(1, "Customer name is required"),
     sellerId: z.string().min(1, "Seller ID is required"),
     dateIssued: z.string().datetime(),

@@ -100,7 +100,6 @@ const UserDashboard = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value={InvoiceStatus.PENDING}>{InvoiceStatus.PENDING}</SelectItem>
                                     <SelectItem value={InvoiceStatus.COMPLETED}>{InvoiceStatus.COMPLETED}</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -112,10 +111,11 @@ const UserDashboard = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow className="border-red-100">
-                                    <TableHead className="font-semibold text-gray-700">Invoice ID</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">SKU</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Customer</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">Seller</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Items</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">Platform</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">Freebie</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Total</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Date</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Status</TableHead>
@@ -126,10 +126,11 @@ const UserDashboard = () => {
                                 {filteredInvoices.length > 0 ? (
                                     filteredInvoices.map((invoice) => (
                                         <TableRow key={invoice.id} className="border-red-50 hover:bg-red-50/50">
-                                            <TableCell className="font-medium text-gray-900">{invoice.id}</TableCell>
-                                            <TableCell className="text-gray-700 font-mono text-sm">{invoice.sku}</TableCell>
-                                            <TableCell className="text-gray-700">{invoice.customer.name}</TableCell>
+                                            <TableCell className="font-medium text-gray-900">{invoice.customer.name}</TableCell>
+                                            <TableCell className="font-medium text-gray-900">{invoice.seller.name}</TableCell>
                                             <TableCell className="text-gray-700">{invoice.items.length} items</TableCell>
+                                            <TableCell className="text-gray-700 text-sm">{invoice.platform.name}</TableCell>
+                                            <TableCell className="text-gray-700 text-sm">{invoice.freebies} items</TableCell>
                                             <TableCell className="font-semibold text-gray-900">
                                                 ₱{invoice.subTotal}</TableCell>
                                             <TableCell className="text-gray-700">{new Date(invoice.dateIssued).toDateString()}</TableCell>
@@ -139,8 +140,8 @@ const UserDashboard = () => {
                                                     className={
                                                         invoice.status === InvoiceStatus.COMPLETED
                                                             ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0"
-                                                            : invoice.status === InvoiceStatus.PENDING
-                                                                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0"
+                                                            : invoice.status === InvoiceStatus.RTS
+                                                                ? "bg-gradient-to-r from-red-400 to-pink-500 text-white border-0"
                                                                 : "bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0"
                                                     }
                                                 >
@@ -217,7 +218,10 @@ const UserDashboard = () => {
                                     Completed: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.COMPLETED).length}
                                 </span>
                                 <span>
-                                    Pending: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.PENDING).length}
+                                    Returned: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.RTS).length}
+                                </span>
+                                <span>
+                                    Joy: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.JOYJOY).length}
                                 </span>
                             </div>
                         </div>

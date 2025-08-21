@@ -1,11 +1,13 @@
-import { Item, User } from '@prisma/client'
+import { Item, Platform, User } from '@prisma/client'
 import { create } from 'zustand'
 
-type NewItemType = Omit<Item, "id" | "invoiceId"> & { isFreebie: boolean }
+type NewItemType = Omit<Item, "id" | "invoiceId"> & { isFreebie: boolean };
 type SelectedSellerType = Pick<User, "id" | "email" | "name">;
 type SelectedCustomerType = Pick<User, "id" | "name">;
+type SelectedPlatformType = Pick<Platform, "id" | "name">;
 
 type InvoiceStore = {
+    selectedPlatform: SelectedPlatformType | null,
     selectedSeller: SelectedSellerType | null,
     selectedCustomer: SelectedCustomerType | null,
     items: (Omit<Item, "invoiceId"> & { isFreebie: boolean })[],
@@ -15,6 +17,7 @@ type InvoiceStore = {
     selectedDate: Date | undefined,
 
     actions: {
+        setSelectedPlatform: (u: SelectedPlatformType | null) => void;
         setSelectedSeller: (u: SelectedSellerType | null) => void;
         setSelectedCustomer: (u: SelectedCustomerType | null) => void;
         addItem: (newItem: NewItemType) => void;
@@ -28,6 +31,7 @@ type InvoiceStore = {
 }
 
 const initialValues: Omit<InvoiceStore, "actions"> = {
+    selectedPlatform: null,
     selectedSeller: null,
     selectedCustomer: null,
     items: [],
@@ -40,6 +44,7 @@ const initialValues: Omit<InvoiceStore, "actions"> = {
 export const useInvoiceStore = create<InvoiceStore>((set) => ({
     ...initialValues,
     actions: {
+        setSelectedPlatform: (u) => set({ selectedPlatform: u }),
         setSelectedSeller: (u) => set({ selectedSeller: u }),
         setSelectedCustomer: (u) => set({ selectedCustomer: u }),
         addItem: (newItem) => set((state) => ({ items: [...state.items, { ...newItem, id: Math.random().toString() }] })),

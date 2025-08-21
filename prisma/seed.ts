@@ -2,7 +2,8 @@ import { prisma } from "@/prisma";
 import { UserRole } from "@/types/roles";
 import bcrypt from "bcryptjs";
 
-const roles = ["SELLER", "ADMIN"];
+const roles = [UserRole.SELLER, UserRole.ADMIN];
+const platforms = ["Shopee", "Tiktok"]
 const itemCategories = [
   {
     name: "Blazer",
@@ -33,6 +34,16 @@ async function main() {
     });
   }
   console.log("✅ Roles seeded successfully.");
+
+  for (const platform of platforms) {
+    await prisma.platform.upsert({
+      where: { name: platform },
+      update: {}, // do nothing if exists
+      create: { name: platform },
+    });
+  }
+  console.log("✅ Platforms seeded successfully.");
+
 
   for (const category of itemCategories) {
     await prisma.itemCategory.upsert({
