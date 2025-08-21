@@ -1,0 +1,237 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String  @id @default(cuid())
+  email          String  @unique
+  name           String
+  hashedPassword String?
+
+  roleId String
+
+  image    String?
+  phone    String?  @unique
+  isActive Boolean? @default(true)
+
+  isOnboarded   Boolean?  @default(false)
+  emailVerified DateTime?
+
+  accounts Account[]
+  sessions Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userProfile   UserProfile?
+  adminProfile  AdminProfile?
+  preferences   UserPreferences?
+  role          Role             @relation(fields: [roleId], references: [id])
+  notifications Notification[]
+  logs          AuditLog[] // for critical actions like login, password change, role update
+
+  invoices Invoice[]
+
+  @@index([name])
+  @@index([roleId])
+  @@map("users")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  // Added this field due to the To confirm your identity error 
+  refresh_token_expires_in Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verification-tokens")
+}
+
+model PasswordToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("password-tokens")
+}
+
+model Role {
+  id       String @id @default(cuid())
+  roleName String @unique
+
+  users User[]
+
+  @@map("roles")
+}
+
+model AdminProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin-profiles")
+}
+
+model UserProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user-profiles")
+}
+
+model Notification {
+  id      String   @id @default(cuid())
+  userId  String
+  title   String
+  message String
+  read    Boolean  @default(false)
+  sentAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String // e.g. "LOGIN", "PASSWORD_RESET", "DELETE_ACCOUNT"
+  level     String? // "INFO", "CRITICAL", etc.
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, action])
+  @@index([createdAt])
+  @@map("audit-logs")
+}
+
+model UserPreferences {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  theme         String?  @default("light") // "dark", "light"
+  language      String? // "en", "es", etc.
+  notifyByEmail Boolean? @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user-preferences")
+}
+
+model Customer {
+  id   String @id @default(cuid())
+  name String @unique
+
+  invoices Invoice[]
+
+  @@map("customers")
+}
+
+enum InvoiceStatus {
+  PENDING
+  COMPLETED
+}
+
+model Invoice {
+  id  String @id @default(cuid())
+  sku String @unique
+
+  items      Item[]
+  subTotal   Int
+  tax        Int
+  grandTotal Int
+  freebies   Int?          @default(0)
+  status     InvoiceStatus @default(PENDING)
+
+  dateDelivered DateTime
+  dateIssued    DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([dateDelivered])
+  @@index([dateIssued])
+  @@index([customerId])
+  @@index([sellerId])
+  @@map("invoices")
+}
+
+model ItemCategory {
+  id   String @id @default(cuid())
+  name String @unique
+
+  items       Item[]
+  quickPrices Int[]
+  color       String?
+  icon        String?
+
+  @@map("item-categories")
+}
+
+model Item {
+  id        String @id @default(cuid())
+  invoiceId String
+
+  price      Int
+  categoryId String
+
+  invoice  Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  category ItemCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([categoryId])
+  @@map("items")
+}
