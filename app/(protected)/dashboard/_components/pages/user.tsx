@@ -53,7 +53,6 @@ const UserDashboard = () => {
     const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: debouncedSearch, status: filterStatus, from: getFormattedDate(from), to: getFormattedDate(to) });
     const filteredInvoices = useMemo(() => data?.payload ?? [], [data])
 
-
     const handleChangeDateFrom = (newDate: Date | undefined) => {
         const params = new URLSearchParams(searchParams.toString());
         const date = newDate ? formatDate(newDate, DATE_FORMAT_SHORT) : "";
@@ -102,6 +101,14 @@ const UserDashboard = () => {
         params.set("page", "1");
         router.push(`?${params.toString()}`);
         actions.setRowsSelected([])
+    }
+
+    const handleChangeToToday = () => {
+        const newDate = from || to ? undefined : new Date()
+        setFrom(newDate)
+        setTo(newDate)
+        handleChangeDateFrom(newDate)
+        handleChangeDateTo(newDate)
     }
 
     const totalItemsSelected = useMemo(() =>
@@ -165,6 +172,9 @@ const UserDashboard = () => {
                                     date={to}
                                     setDate={setTo}
                                 />
+                                <Button type='button' onClick={handleChangeToToday}>
+                                    {from || to ? "Clear Dates" : "Today"}
+                                </Button>
                             </div>
                         </div>
                     </CardHeader>
