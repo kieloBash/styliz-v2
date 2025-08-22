@@ -3,6 +3,7 @@ import { DATE_FORMAT_SHORT } from "@/constants/formats";
 import { protectedProcedure } from "@/server/trpc/init";
 import { FullInvoiceType } from "@/types/db";
 import { QueryPayloadType } from "@/types/global";
+import { UserRole } from "@/types/roles";
 import { logger } from "@/utils/logger";
 import { endOfDay, parse, startOfDay } from "date-fns";
 
@@ -11,6 +12,7 @@ export const getInvoiceList = protectedProcedure
     .query(async ({ input, ctx }): Promise<QueryPayloadType<FullInvoiceType[]>> => {
         try {
             const { customerName, status, limit, page, from, to } = input;
+            const currentUser = ctx.session.user;
 
             const where: any = {
                 ...(from && to && {
@@ -30,6 +32,7 @@ export const getInvoiceList = protectedProcedure
                         },
                     }
                     : {}),
+                ...currentUser.role === UserRole.SELLER && { sellerId: currentUser.id }
             };
 
             const [data, total] = await Promise.all([
