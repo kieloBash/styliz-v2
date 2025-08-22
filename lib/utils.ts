@@ -1,3 +1,4 @@
+import { FullInvoiceType } from "@/types/db";
 import { InvoiceStatus } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx"
 import { toast } from "sonner"
@@ -53,3 +54,38 @@ export const getStatusColor = (status: InvoiceStatus) => {
       return "bg-gray-500"
   }
 }
+
+export const copyInvoiceToClipboard = (invoice: FullInvoiceType) => {
+  if (!invoice) return;
+
+  const formattedItems = invoice.items
+    .map((item, idx) => `  ${idx + 1}. ${item.category.name} - ₱${item.price.toLocaleString()}`)
+    .join("\n");
+
+  const text = `
+Hi sis ${invoice.customer.name}! 👋
+
+Thanks for shopping at StylizBoutique! Here's your order summary:
+
+🛍 Items:
+${formattedItems}
+
+💰 Total: ₱${invoice.subTotal}
+🎁 Freebies: ${invoice.freebies ?? 0}
+
+Seller: ${invoice.seller.name}
+Date: ${new Date(invoice.dateIssued).toLocaleDateString()}
+
+We hope you love your items! ❤️
+Looking forward to seeing you again soon!
+`.trim();
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      console.log("Invoice copied to clipboard!");
+    })
+    .catch((err) => {
+      console.error("Failed to copy invoice:", err);
+    });
+};

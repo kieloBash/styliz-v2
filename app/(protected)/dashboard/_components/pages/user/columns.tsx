@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { getStatusBadgeColor } from "@/lib/utils"
+import { copyInvoiceToClipboard, getStatusBadgeColor } from "@/lib/utils"
 import { FullInvoiceType } from "@/types/db"
 import { ColumnDef } from "@tanstack/react-table"
 import { CopyIcon } from "lucide-react"
@@ -29,7 +29,6 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
                     <Checkbox
                         checked={actions.isRowSelected(row.original)}
                         onCheckedChange={(value) => {
-                            row.toggleSelected(!!value)
                             if (value) {
                                 actions.addRow(row.original)
                             } else {
@@ -110,7 +109,7 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
             const invoice = row.original;
 
             async function handleCopy() {
-                console.log(invoice)
+                copyInvoiceToClipboard(invoice)
             }
 
             return (

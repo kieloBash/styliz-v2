@@ -46,7 +46,7 @@ export const getInvoiceList = protectedProcedure
                         },
                         status: true,
                         items: {
-                            select: { price: true, categoryId: true },
+                            select: { price: true, categoryId: true, category: { select: { name: true } } },
                         },
                         platform: {
                             select: { name: true }

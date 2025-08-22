@@ -1,8 +1,12 @@
-import { Customer, Invoice, Item, Platform, User } from "@prisma/client";
+import { Customer, Invoice, Item, ItemCategory, Platform, User } from "@prisma/client";
 
 export type FullInvoiceType = Invoice & {
     customer: Customer,
     seller: User,
-    items: Item[],
+    items: FullItemType[],
     platform: Platform
+}
+
+export type FullItemType = Item & {
+    category: ItemCategory
 }
