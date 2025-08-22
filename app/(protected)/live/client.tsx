@@ -12,7 +12,7 @@ import { useInvoiceStore } from "./_stores/invoiceStore"
 export default function LiveInvoiceCreation() {
     const { openCustom, selectedCategory } = useInvoiceStore()
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-100 to-pink-100 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-rose-100 to-pink-100 flex flex-col relative">
             <LiveSaleHeader />
             <div className="flex-1 flex flex-col">
                 <CustomerSelectBar />
