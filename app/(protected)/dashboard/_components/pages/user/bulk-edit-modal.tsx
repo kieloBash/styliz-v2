@@ -23,8 +23,6 @@ export function BulkEditModal({ }: BulkEditModalProps) {
     const { rowsSelected: invoices, isEdittingBulk: isOpen, actions } = useUserDashboardStore();
     const onClose = () => {
         actions.setIsEdittingBulk(false);
-        actions.setIsSelectingInvoice(false)
-        actions.setRowsSelected([])
     }
     const { mutate } = trpc.invoice.bulkUpdate.useMutation({
         onMutate: () => {
@@ -36,6 +34,8 @@ export function BulkEditModal({ }: BulkEditModalProps) {
             utils.invoice.getList.invalidate()
             utils.customer.getList.invalidate()
             onClose()
+            actions.setIsSelectingInvoice(false)
+            actions.setRowsSelected([])
         },
         onError: (error) => {
             showToast("error", "Something went wrong!", error.message)

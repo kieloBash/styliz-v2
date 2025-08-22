@@ -39,7 +39,10 @@ export const useUserDashboardStore = create<StoreType>((set, get) => ({
         setIsSelectingInvoice: (b) => set({ isSelectingInvoice: b }),
         setRowsSelected: (b) => set({ rowsSelected: b }),
         addRow: (b) => set((state) => ({ rowsSelected: [...state.rowsSelected, b] })),
-        addRows: (b) => set((state) => ({ rowsSelected: [...state.rowsSelected, ...b] })),
+        addRows: (b) => set((state) => {
+            const map = new Map([...state.rowsSelected, ...b].map((r) => [r.id, r]));
+            return { rowsSelected: Array.from(map.values()) };
+        }),
         removeRow: (b) => set((state) => ({ rowsSelected: state.rowsSelected.filter(d => d.id !== b.id) })),
         isRowSelected: (b) => get().rowsSelected.some((row) => row.id === b.id),
     }
