@@ -5,6 +5,7 @@ import { LogOut, Zap } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
+import { UserRole } from '@/types/roles';
 
 const Navbar = () => {
     const user = getUserSessionClient();
@@ -33,12 +34,14 @@ const Navbar = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link href="/live">
-                        <Button className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6">
-                            <Zap className="h-4 w-4" />
-                            <span>Live Sale</span>
-                        </Button>
-                    </Link>
+                    {user?.role === UserRole.SELLER && (
+                        <Link href="/live">
+                            <Button className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6">
+                                <Zap className="h-4 w-4" />
+                                <span>Live Sale</span>
+                            </Button>
+                        </Link>
+                    )}
                     <Button
                         variant="outline"
                         onClick={async () => {
