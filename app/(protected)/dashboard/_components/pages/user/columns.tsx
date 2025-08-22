@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { copyInvoiceToClipboard, getStatusBadgeColor } from "@/lib/utils"
+import { copyInvoiceToClipboard, getStatusBadgeColor, showToast } from "@/lib/utils"
 import { FullInvoiceType } from "@/types/db"
 import { ColumnDef } from "@tanstack/react-table"
 import { CopyIcon } from "lucide-react"
@@ -110,6 +110,7 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
 
             async function handleCopy() {
                 copyInvoiceToClipboard(invoice)
+                showToast("success", `${invoice.customer.name} copied successfully!`)
             }
 
             return (
