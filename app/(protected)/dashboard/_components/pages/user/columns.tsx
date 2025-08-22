@@ -1,0 +1,130 @@
+"use client"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { getStatusBadgeColor } from "@/lib/utils"
+import { FullInvoiceType } from "@/types/db"
+import { ColumnDef } from "@tanstack/react-table"
+import { CopyIcon } from "lucide-react"
+import { useUserDashboardStore } from "../../../_stores/userDashboardStore"
+
+export const columns: ColumnDef<FullInvoiceType>[] = [
+    {
+        id: "select",
+        header: () => {
+            const { actions, isSelectingInvoice } = useUserDashboardStore();
+            return (
+                <Checkbox
+                    checked={isSelectingInvoice}
+                    onCheckedChange={(value) => actions.setIsSelectingInvoice(!!value)}
+                    aria-label="Select all"
+                />
+            )
+        },
+        cell: ({ row }) => {
+            const { actions, isSelectingInvoice } = useUserDashboardStore();
+            if (isSelectingInvoice)
+                return (
+                    <Checkbox
+                        checked={actions.isRowSelected(row.original)}
+                        onCheckedChange={(value) => {
+                            row.toggleSelected(!!value)
+                            if (value) {
+                                actions.addRow(row.original)
+                            } else {
+                                actions.removeRow(row.original)
+                            }
+                        }}
+                        aria-label="Select row"
+                    />
+                )
+        },
+    },
+    {
+        accessorFn: (row) => row.customer.name,
+        id: "customerName",
+        header: "Customer"
+    },
+    {
+        accessorFn: (row) => row.seller.name,
+        id: "sellerName",
+        header: "Seller"
+    },
+    {
+        accessorFn: (row) => row.items.length ?? 0,
+        id: "itemCount",
+        header: "Items",
+        cell: ({ row }) => {
+            return (
+                <span className="">
+                    <span className="font-medium">{row.original.items.length ?? 0}</span> items
+                </span>
+            )
+        }
+    },
+    {
+        accessorFn: (row) => row.platform.name,
+        id: "platformName",
+        header: "Platorm",
+    },
+    {
+        accessorKey: "freebies",
+        header: "Freebies",
+        cell: ({ row }) => {
+            return (
+                <span className="">
+                    <span className="font-medium">{row.original.freebies}</span> free
+                </span>
+            )
+        }
+    },
+    {
+        accessorKey: "subTotal",
+        header: "Total",
+        cell: ({ row }) => {
+            return (
+                <span className="">
+                    <span className="font-medium">₱ {row.original.subTotal.toLocaleString()}</span>
+                </span>
+            )
+        }
+    },
+    {
+        accessorFn: (row) => new Date(row.dateIssued).toDateString(),
+        id: "dateIssued",
+        header: "Date",
+    },
+    {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+            return <Badge className={getStatusBadgeColor(row.original.status)}>{row.original.status}</Badge>
+        }
+    },
+    {
+        id: "actions",
+        header: () => <span className="flex flex-1 justify-center items-center">Actions</span>,
+        cell: ({ row }) => {
+
+            const invoice = row.original;
+
+            async function handleCopy() {
+                console.log(invoice)
+            }
+
+            return (
+                <div className="flex gap-2 items-center justify-center">
+                    <Button
+                        onClick={handleCopy}
+                        variant="ghost"
+                        size="sm"
+                        className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                    >
+                        <CopyIcon className="h-4 w-4" /> Copy
+                    </Button>
+                </div>
+            )
+        }
+    }
+]

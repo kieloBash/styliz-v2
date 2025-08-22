@@ -16,6 +16,10 @@ import { useUserDashboardStore } from '../../_stores/userDashboardStore'
 import { DatePicker } from '@/components/ui/date-picker'
 import { formatDate } from 'date-fns'
 import { DATE_FORMAT_SHORT } from '@/constants/formats'
+import { FullInvoiceType } from '@/types/db'
+import { InvoiceDataTable } from './user/data-table'
+import { columns } from './user/columns'
+import { BulkEditModal } from './user/bulk-edit-modal'
 
 const UserDashboard = () => {
     const searchParams = useSearchParams()
@@ -30,7 +34,7 @@ const UserDashboard = () => {
     const [to, setTo] = useState<Date | undefined>(filterToDateParams ? new Date(filterToDateParams) : undefined);
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
-    const { actions } = useUserDashboardStore();
+    const { actions, rowsSelected, isSelectingInvoice } = useUserDashboardStore();
 
     const router = useRouter();
 
@@ -49,8 +53,6 @@ const UserDashboard = () => {
     const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: debouncedSearch, status: filterStatus, from: getFormattedDate(from), to: getFormattedDate(to) });
     const filteredInvoices = useMemo(() => data?.payload ?? [], [data])
 
-    const handleCopy = async (inv: any) => { actions.setSelectedInvoice(inv) }
-    const handleEdit = async (inv: any) => { actions.setSelectedInvoice(inv) }
 
     const handleChangeDateFrom = (newDate: Date | undefined) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -59,6 +61,7 @@ const UserDashboard = () => {
         params.set("from", date);
         params.set("page", "1");
         router.push(`?${params.toString()}`);
+        actions.setRowsSelected([])
     }
 
     const handleChangeDateTo = (newDate: Date | undefined) => {
@@ -68,6 +71,7 @@ const UserDashboard = () => {
         params.set("to", date);
         params.set("page", "1");
         router.push(`?${params.toString()}`);
+        actions.setRowsSelected([])
     }
 
     const handleChangeLimit = (newLimit: string) => {
@@ -75,6 +79,7 @@ const UserDashboard = () => {
         params.set("limit", newLimit);
         params.set("page", "1");
         router.push(`?${params.toString()}`);
+        actions.setRowsSelected([])
     }
 
     const handleChangePage = (newPage: string) => {
@@ -88,6 +93,7 @@ const UserDashboard = () => {
         params.set("status", newStatus);
         params.set("page", "1");
         router.push(`?${params.toString()}`);
+        actions.setRowsSelected([])
     }
 
     const handleChangeSearchFilter = (newSearch: string) => {
@@ -95,218 +101,134 @@ const UserDashboard = () => {
         params.set("search", newSearch);
         params.set("page", "1");
         router.push(`?${params.toString()}`);
+        actions.setRowsSelected([])
     }
 
-    const getItemsLoader = () => {
-        return (
-            <TableRow>
-                <TableCell colSpan={9} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                            <FileText className="h-8 w-8 text-gray-400" />
-                        </div>
-                        <div className="text-gray-500">
-                            Fetching invoices, please wait...
-                        </div>
-                    </div>
-                </TableCell>
-            </TableRow>
-        )
-    }
+    const totalItemsSelected = useMemo(() =>
+        rowsSelected.reduce((prev, current) => current.items.length + prev, 0), [rowsSelected])
+
+    const totalItemsPrice = useMemo(() =>
+        rowsSelected.reduce((prev, current) => prev + current.subTotal, 0), [rowsSelected])
 
     return (
-        <div className="max-w-7xl mx-auto p-6 space-y-8">
-            {/* All Invoices */}
-            <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
-                <CardHeader className="pb-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center">
-                                    <FileText className="h-4 w-4 text-white" />
-                                </div>
-                                <span className="bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
-                                    My Invoices
-                                </span>
-                            </CardTitle>
-                            <CardDescription className="text-gray-600">View and manage all your invoices</CardDescription>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                    placeholder="Search invoices..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 border-rose-200 focus:border-rose-400 focus:ring-rose-400 w-full sm:w-64"
-                                />
+        <>
+            <BulkEditModal />
+            <div className="max-w-7xl mx-auto p-6 space-y-8">
+                {/* All Invoices */}
+                <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+                    <CardHeader className="pb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <CardTitle className="flex items-center gap-3 text-xl">
+                                    <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center">
+                                        <FileText className="h-4 w-4 text-white" />
+                                    </div>
+                                    <span className="bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
+                                        My Invoices
+                                    </span>
+                                </CardTitle>
+                                <CardDescription className="text-gray-600">View and manage all your invoices</CardDescription>
                             </div>
-                            <Select value={filterStatus}
-                                onValueChange={(e) => {
-                                    setFilterStatus(e)
-                                }}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Select a status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    {Object.keys(InvoiceStatus).map(status => (
-                                        <SelectItem key={status} value={status}>{status}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <DatePicker
-                                placeholder="Date from"
-                                onChange={handleChangeDateFrom}
-                                date={from}
-                                setDate={setFrom}
-                            />
-                            <DatePicker
-                                placeholder="Date to"
-                                onChange={handleChangeDateTo}
-                                date={to}
-                                setDate={setTo}
-                            />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="border-red-100">
-                                    <TableHead className="font-semibold text-gray-700">Customer</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Seller</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Items</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Platform</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Freebie</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Total</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Date</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Status</TableHead>
-                                    <TableHead className="font-semibold text-gray-700 text-center">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? getItemsLoader() :
-                                    <>
-                                        {filteredInvoices.length > 0 ? (
-                                            filteredInvoices.map((invoice) => (
-                                                <TableRow key={invoice.id} className="border-red-50 hover:bg-red-50/50">
-                                                    <TableCell className="font-medium text-gray-900">{invoice.customer.name}</TableCell>
-                                                    <TableCell className="font-medium text-gray-900">{invoice.seller.name}</TableCell>
-                                                    <TableCell className="text-gray-700">{invoice.items.length} items</TableCell>
-                                                    <TableCell className="text-gray-700 text-sm">{invoice.platform.name}</TableCell>
-                                                    <TableCell className="text-gray-700 text-sm">{invoice.freebies} items</TableCell>
-                                                    <TableCell className="font-semibold text-gray-900">
-                                                        ₱{invoice.subTotal}</TableCell>
-                                                    <TableCell className="text-gray-700">{new Date(invoice.dateIssued).toDateString()}</TableCell>
-                                                    <TableCell>
-                                                        <Badge
-                                                            variant={invoice.status === InvoiceStatus.COMPLETED ? "default" : "secondary"}
-                                                            className={
-                                                                invoice.status === InvoiceStatus.COMPLETED
-                                                                    ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0"
-                                                                    : invoice.status === InvoiceStatus.RTS
-                                                                        ? "bg-gradient-to-r from-red-400 to-pink-500 text-white border-0"
-                                                                        : "bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0"
-                                                            }
-                                                        >
-                                                            {invoice.status}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-2 items-center justify-center">
-                                                            <Button
-                                                                onClick={() => handleCopy(invoice)}
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                                            >
-                                                                <CopyIcon className="h-4 w-4" /> Copy
-                                                            </Button>
-                                                            <Button
-                                                                onClick={() => handleEdit(invoice)}
-                                                                variant="ghost"
-                                                                className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                                            >
-                                                                <Edit2 className="h-4 w-4" />
-                                                                Edit
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={9} className="text-center py-12">
-                                                    <div className="flex flex-col items-center gap-3">
-                                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                                                            <FileText className="h-8 w-8 text-gray-400" />
-                                                        </div>
-                                                        <div className="text-gray-500">
-                                                            {searchTerm || filterStatus !== "all"
-                                                                ? "No invoices found matching your search criteria"
-                                                                : "No invoices yet. Start your first live sale!"
-                                                            }
-                                                        </div>
-                                                        {!searchTerm && filterStatus === "all" && (
-                                                            <Link href="/live">
-                                                                <Button className="mt-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white">
-                                                                    <Zap className="h-4 w-4 mr-2" />
-                                                                    Create First Invoice
-                                                                </Button>
-                                                            </Link>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </>}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {filteredInvoices.length > 0 && (
-                        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-                            <div className="flex items-center gap-2 justify-center">
-                                <span>Showing {filteredInvoices.length} of {data?.meta?.total ?? 0} invoices</span>
-                                <Select value={limit} onValueChange={handleChangeLimit}>
-                                    <SelectTrigger>{limit}</SelectTrigger>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        placeholder="Search invoices..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="pl-10 border-rose-200 focus:border-rose-400 focus:ring-rose-400 w-full sm:w-64"
+                                    />
+                                </div>
+                                <Select value={filterStatus}
+                                    onValueChange={(e) => {
+                                        setFilterStatus(e)
+                                    }}>
+                                    <SelectTrigger className="lg:w-[180px] w-full">
+                                        <SelectValue placeholder="Select a status" />
+                                    </SelectTrigger>
                                     <SelectContent>
-                                        {["10", "20", '30', '40'].map((val, index) => (<SelectItem value={val} key={index}>{val}</SelectItem>))}
+                                        <SelectItem value="all">All Status</SelectItem>
+                                        {Object.keys(InvoiceStatus).map(status => (
+                                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
-                                <Button type='button'
-                                    disabled={parseInt(page) === 1}
-                                    onClick={() => {
-                                        if (parseInt(page) > 1)
-                                            handleChangePage((parseInt(page) - 1).toLocaleString())
-                                    }}
-                                    variant={"outline"} size={"icon"} className='size-8'><ChevronLeft /></Button>
-                                <Button type='button'
-                                    disabled={parseInt(page) >= (data?.meta?.pageCount ?? 0)}
-                                    onClick={() => {
-                                        if (parseInt(page) < (data?.meta?.pageCount ?? 0))
-                                            handleChangePage((parseInt(page) + 1).toLocaleString())
-                                    }}
-                                    variant={"outline"} size={"icon"} className='size-8'><ChevronRight /></Button>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <span>
-                                    Completed: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.COMPLETED).length}
-                                </span>
-                                <span>
-                                    Returned: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.RTS).length}
-                                </span>
-                                <span>
-                                    Joy: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.JOYJOY).length}
-                                </span>
+                                <DatePicker
+                                    placeholder="Date from"
+                                    onChange={handleChangeDateFrom}
+                                    date={from}
+                                    setDate={setFrom}
+                                />
+                                <DatePicker
+                                    placeholder="Date to"
+                                    onChange={handleChangeDateTo}
+                                    date={to}
+                                    setDate={setTo}
+                                />
                             </div>
                         </div>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {isSelectingInvoice && (
+                            <div className="text-sm text-gray-600 mb-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+                                <div className="flex gap-2 justify-center items-center">
+                                    <Button disabled={rowsSelected.length === 0} type='button' variant={"outline"}
+                                        onClick={() => { actions.setIsEdittingBulk(true) }}>Edit Bulk</Button>
+                                    <Button type='button' variant={"outline"}
+                                        onClick={() => { actions.addRows(filteredInvoices) }}>Select All</Button>
+                                    <Button type='button' variant={"outline"}
+                                        onClick={() => { actions.setRowsSelected([]) }}>Clear All</Button>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span><span className="font-bold">{rowsSelected.length}</span> rows selected</span>
+                                    <span><span className="font-bold">{totalItemsSelected}</span> items selected</span>
+                                    <span><span className="font-bold">₱{totalItemsPrice.toLocaleString()}</span> amount selected</span>
+                                </div>
+                            </div>
+                        )}
+                        <InvoiceDataTable columns={columns} data={filteredInvoices} isLoading={isLoading} />
+                        {filteredInvoices.length > 0 && (
+                            <div className="mt-4 flex lg:flex-row flex-col gap-4 items-center justify-between text-sm text-gray-600">
+                                <div className="flex items-center gap-2 justify-center">
+                                    <span>Showing {filteredInvoices.length} of {data?.meta?.total ?? 0} invoices</span>
+                                    <Select value={limit} onValueChange={handleChangeLimit}>
+                                        <SelectTrigger>{limit}</SelectTrigger>
+                                        <SelectContent>
+                                            {["5", "10", "20", '30', '40'].map((val, index) => (<SelectItem value={val} key={index}>{val}</SelectItem>))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Button type='button'
+                                        disabled={parseInt(page) === 1}
+                                        onClick={() => {
+                                            if (parseInt(page) > 1)
+                                                handleChangePage((parseInt(page) - 1).toLocaleString())
+                                        }}
+                                        variant={"outline"} size={"icon"} className='size-8'><ChevronLeft /></Button>
+                                    <Button type='button'
+                                        disabled={parseInt(page) >= (data?.meta?.pageCount ?? 0)}
+                                        onClick={() => {
+                                            if (parseInt(page) < (data?.meta?.pageCount ?? 0))
+                                                handleChangePage((parseInt(page) + 1).toLocaleString())
+                                        }}
+                                        variant={"outline"} size={"icon"} className='size-8'><ChevronRight /></Button>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span>
+                                        Completed: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.COMPLETED).length}
+                                    </span>
+                                    <span>
+                                        Returned: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.RTS).length}
+                                    </span>
+                                    <span>
+                                        Joy: {filteredInvoices.filter(inv => inv.status === InvoiceStatus.JOYJOY).length}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+        </>
     )
 }
 

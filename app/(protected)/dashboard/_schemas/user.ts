@@ -1,3 +1,4 @@
+import { InvoiceStatus } from "@prisma/client";
 import z from "zod";
 
 export type SearchInvoiceType = z.infer<typeof SearchInvoiceSchema>;
@@ -8,4 +9,12 @@ export const SearchInvoiceSchema = z.object({
     from: z.string().optional(),
     limit: z.number().optional().default(5),
     page: z.number().optional().default(1),
+})
+
+export type BulkEditInvoiceType = z.infer<typeof BulkEditInvoiceSchema>;
+export const BulkEditInvoiceSchema = z.object({
+    invoiceIds: z.object({
+        id: z.string(),
+    }).array().min(1, "must have at least 1 selected invoice to edit"),
+    status: z.nativeEnum(InvoiceStatus)
 })

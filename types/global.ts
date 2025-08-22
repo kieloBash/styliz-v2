@@ -1,3 +1,4 @@
+import { ColumnDef } from "@tanstack/react-table";
 import { UserRole } from "./roles";
 
 export interface IClientProps {
@@ -15,4 +16,9 @@ export type QueryPayloadType<T> = {
     message: string;
     payload?: T;
     meta?: MetaType
+}
+
+export interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[]
+    data: TData[]
 }
