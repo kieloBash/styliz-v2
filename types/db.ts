@@ -10,3 +10,7 @@ export type FullInvoiceType = Invoice & {
 export type FullItemType = Item & {
     category: ItemCategory
 }
+
+export type FullCustomerType = Customer & {
+    invoices: Omit<FullInvoiceType, "customer">[]
+}

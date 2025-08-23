@@ -1,9 +1,12 @@
+import { SortType } from "@/types/global";
 import z from "zod";
 
 export type SearchCustomerType = z.infer<typeof SearchCustomerSchema>;
 export const SearchCustomerSchema = z.object({
     name: z.string().optional(),
-    limit: z.number().optional().default(5)
+    limit: z.number().optional().default(5),
+    sort: z.nativeEnum(SortType).optional(),
+    orderBy: z.string().optional(),
 })
 
 export type CreateInvoiceType = z.infer<typeof CreateInvoiceSchema>;

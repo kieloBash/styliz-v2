@@ -34,7 +34,7 @@ export const createInvoice = protectedProcedure
         try {
             let customer = await db.customer.findFirst({ where: { name: customerName } })
             if (!customer) {
-                customer = await db.customer.create({ data: { name: customerName } })
+                customer = await db.customer.create({ data: { name: customerName, createdAt: new Date(dateIssued) } })
             }
 
             const nonFreeItems = items.filter(d => !d.isFreebie);

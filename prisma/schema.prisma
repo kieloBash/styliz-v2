@@ -171,7 +171,8 @@ model Customer {
   id   String @id @default(cuid())
   name String @unique
 
-  invoices Invoice[]
+  invoices  Invoice[]
+  createdAt DateTime  @default(now())
 
   @@map("customers")
 }

@@ -89,3 +89,18 @@ Looking forward to seeing you again soon!
       console.error("Failed to copy invoice:", err);
     });
 };
+
+export const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+}
+
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(amount)
+}
