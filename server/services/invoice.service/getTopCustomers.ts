@@ -12,7 +12,7 @@ export const getTopCustomers = protectedProcedure
             return { success: true, message: "Successfully fetched top spending customers", payload: customers };
         } catch (error) {
             const message = "failed to fetch top customers";
-            logger.info(`Error: ${message}`, { error });
+            logger.error(`Error: ${message}`, { error });
             return { success: false, message };
         }
     });

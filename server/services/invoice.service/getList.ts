@@ -1,11 +1,11 @@
 import { SearchInvoiceSchema } from "@/app/(protected)/dashboard/_schemas";
-import { DATE_FORMAT_SHORT } from "@/constants/formats";
+import { parseDate } from "@/lib/utils";
 import { protectedProcedure } from "@/server/trpc/init";
 import { FullInvoiceType } from "@/types/db";
 import { QueryPayloadType } from "@/types/global";
 import { UserRole } from "@/types/roles";
 import { logger } from "@/utils/logger";
-import { endOfDay, parse, startOfDay } from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
 
 export const getInvoiceList = protectedProcedure
     .input(SearchInvoiceSchema)
@@ -17,8 +17,8 @@ export const getInvoiceList = protectedProcedure
             const where: any = {
                 ...(from && to && {
                     dateIssued: {
-                        gte: startOfDay(parse(from, DATE_FORMAT_SHORT, new Date())),
-                        lte: endOfDay(parse(to, DATE_FORMAT_SHORT, new Date()))
+                        gte: startOfDay(parseDate({ date: from })),
+                        lte: endOfDay(parseDate({ date: to }))
                     }
                 }),
                 ...(status && status !== "all" ? { status: status } : {}),
@@ -79,7 +79,7 @@ export const getInvoiceList = protectedProcedure
             };
         } catch (error) {
             const message = "failed to fetch invoices";
-            logger.info(`Error: ${message}`, { error });
+            logger.error(`Error: ${message}`, { error });
 
             return {
                 success: false,

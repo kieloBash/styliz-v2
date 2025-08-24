@@ -1,13 +1,23 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatPercentage } from '@/lib/utils';
 import { DollarSign, TrendingUp, Users, FileText } from 'lucide-react'
 import React from 'react'
 
-const AdminStatsCards = () => {
-    const totalRevenue = 0;
-    const activeSellers = 0;
-    const totalInvoices = 0;
+type Props = {
+    totalRevenue?: number;
+    revenueChange?: number;
+    activeSellers?: number;
+    activeSellersChange?: number;
+    totalInvoices?: number;
+    totalInvoicesChange?: number;
+    // totalCustomers: number;
+}
+const AdminStatsCards = ({ totalRevenue = 0, activeSellers = 0, totalInvoices = 0, revenueChange, activeSellersChange, totalInvoicesChange }: Props) => {
     const totalCustomers = 0;
+
+    const getIcon = (Icon: any) => {
+        return <Icon className="h-3 w-3" />
+    }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -19,10 +29,12 @@ const AdminStatsCards = () => {
                 </CardHeader>
                 <CardContent className="relative z-10">
                     <div className="text-3xl font-bold">{formatCurrency(totalRevenue)}</div>
-                    <p className="text-xs text-red-200 flex items-center gap-1 mt-1">
-                        <TrendingUp className="h-3 w-3" />
-                        +12% from last month
-                    </p>
+                    {revenueChange && (
+                        <p className="text-xs text-red-200 flex items-center gap-1 mt-1">
+                            {getIcon(formatPercentage(revenueChange).Icon)}
+                            {formatPercentage(revenueChange).value} from last month
+                        </p>
+                    )}
                 </CardContent>
             </Card>
 
@@ -34,10 +46,12 @@ const AdminStatsCards = () => {
                 </CardHeader>
                 <CardContent className="relative z-10">
                     <div className="text-3xl font-bold">{activeSellers}</div>
-                    <p className="text-xs text-rose-200 flex items-center gap-1 mt-1">
-                        <TrendingUp className="h-3 w-3" />
-                        +3 new this month
-                    </p>
+                    {activeSellersChange && (
+                        <p className="text-xs text-red-200 flex items-center gap-1 mt-1">
+                            {getIcon(formatPercentage(activeSellersChange).Icon)}
+                            {formatPercentage(activeSellersChange).value} from last month
+                        </p>
+                    )}
                 </CardContent>
             </Card>
 
@@ -48,11 +62,13 @@ const AdminStatsCards = () => {
                     <FileText className="h-5 w-5 text-pink-200" />
                 </CardHeader>
                 <CardContent className="relative z-10">
-                    <div className="text-3xl font-bold">{totalInvoices}</div>
-                    <p className="text-xs text-pink-200 flex items-center gap-1 mt-1">
-                        <TrendingUp className="h-3 w-3" />
-                        +8 today
-                    </p>
+                    <div className="text-3xl font-bold">{totalInvoices} items</div>
+                    {totalInvoicesChange && (
+                        <p className="text-xs text-red-200 flex items-center gap-1 mt-1">
+                            {getIcon(formatPercentage(totalInvoicesChange).Icon)}
+                            {formatPercentage(totalInvoicesChange).value} from last month
+                        </p>
+                    )}
                 </CardContent>
             </Card>
 

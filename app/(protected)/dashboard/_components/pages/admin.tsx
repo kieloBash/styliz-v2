@@ -23,9 +23,12 @@ const AdminDashboard = () => {
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const analytics = trpc.invoice.getDashboardAnalytics.useQuery({})
-    const { recentCustomers, topCustomers } = useMemo(() => ({
+    const { recentCustomers, topCustomers, totalRevenue, activeSellers, totalInvoices } = useMemo(() => ({
         recentCustomers: analytics.data?.payload?.recentCustomers ?? [],
         topCustomers: analytics.data?.payload?.topCustomers ?? [],
+        totalRevenue: analytics.data?.payload?.totalRevenue,
+        activeSellers: analytics.data?.payload?.activeSellers,
+        totalInvoices: analytics.data?.payload?.totalInvoices,
     }), [analytics])
 
     const invoices = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
@@ -43,7 +46,11 @@ const AdminDashboard = () => {
         <>
             <AdminBulkEditModal />
             <div className="max-w-[90rem] mx-auto p-6 space-y-8">
-                <AdminStatsCards />
+                <AdminStatsCards
+                    totalRevenue={totalRevenue?.value} revenueChange={totalRevenue?.change}
+                    activeSellers={activeSellers?.value} activeSellersChange={activeSellers?.change}
+                    totalInvoices={totalInvoices?.value} totalInvoicesChange={totalInvoices?.change}
+                />
                 <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
                     <div className="lg:col-span-4 col-span-1">
                         <AllInvoicesCard

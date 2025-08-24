@@ -12,7 +12,7 @@ export const getRecentCustomers = protectedProcedure
             return { success: true, message: "Successfully fetched recent customers", payload: customers };
         } catch (error) {
             const message = "failed to fetch recent customers";
-            logger.info(`Error: ${message}`, { error });
+            logger.error(`Error: ${message}`, { error });
             return { success: false, message };
         }
     });

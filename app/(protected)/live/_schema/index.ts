@@ -7,6 +7,8 @@ export const SearchCustomerSchema = z.object({
     limit: z.number().optional().default(5),
     sort: z.nativeEnum(SortType).optional(),
     orderBy: z.string().optional(),
+    from: z.string().optional(),
+    to: z.string().optional(),
 })
 
 export type CreateInvoiceType = z.infer<typeof CreateInvoiceSchema>;

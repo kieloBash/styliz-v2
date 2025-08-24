@@ -20,7 +20,7 @@ export const bulkEditInvoices = protectedProcedure
             }
         } catch (error) {
             const message = "failed to fetch invoices";
-            logger.info(`Error: ${message}`, { error });
+            logger.error(`Error: ${message}`, { error });
 
             return {
                 success: false,

@@ -1,11 +1,33 @@
+import { DATE_FORMAT_SHORT } from "@/constants/formats";
 import { FullInvoiceType } from "@/types/db";
 import { InvoiceStatus } from "@prisma/client";
-import { clsx, type ClassValue } from "clsx"
-import { toast } from "sonner"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { parse } from "date-fns";
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
+import { toast } from "sonner";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function parseDate({ date, format = DATE_FORMAT_SHORT, referencedDate = new Date() }:
+  { date: string, format?: string, referencedDate?: Date }) {
+  return parse(date, format, referencedDate);
+}
+
+export function formatPercentage(val: number) {
+  if (val >= 0) {
+    return {
+      value: `+${val}%`,
+      Icon: TrendingUpIcon
+    }
+  } else {
+    return {
+      value: `-${val}%`,
+      Icon: TrendingDownIcon
+    }
+  }
 }
 
 export function showToast(

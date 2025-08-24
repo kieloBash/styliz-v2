@@ -15,7 +15,7 @@ export const getPlatformList = protectedProcedure
             }
         } catch (error) {
             const message = "failed to fetch platforms";
-            logger.info(`Error: ${message}`, { error });
+            logger.error(`Error: ${message}`, { error });
 
             return {
                 success: false,
