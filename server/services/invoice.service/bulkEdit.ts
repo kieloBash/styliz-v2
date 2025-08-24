@@ -14,6 +14,11 @@ export const bulkEditInvoices = protectedProcedure
                 data: { status }
             })
 
+            await ctx.db!.item.updateMany({
+                where: { invoiceId: { in: invoiceIds.map((d) => d.id) } },
+                data: { status }
+            })
+
             return {
                 message: `Successfully updated status of ${invoiceIds.length} invoices to ${status}`,
                 success: true

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, showToast } from '@/lib/utils'
 import { trpc } from '@/server/trpc/client'
 import { SellerPerformanceDTO } from '@/types/dto/seller-performance'
+import { InvoiceStatus, ItemStatus } from '@prisma/client'
 import { Crown, FileText, Package, PlusIcon, User, Users } from 'lucide-react'
 import { useState } from 'react'
 import { CreateSellerModal } from './create-seller-modal'
@@ -16,8 +17,8 @@ const AdminSellerBreakdownCard = ({ data }: Props) => {
     const utils = trpc.useUtils();
 
     const getCompletionRate = (seller: SellerPerformanceDTO) => {
-        if (seller.invoiceCount === 0) return 0
-        return Math.round((seller.completedItems / seller.totalItems) * 100)
+        if (seller.totalItems === 0) return 0
+        return Math.round(((seller.itemMap[ItemStatus.COMPLETED] ?? 0) / seller.totalItems) * 100)
     }
 
     const { mutate: onCreateSeller } = trpc.seller.create.useMutation({
@@ -43,6 +44,115 @@ const AdminSellerBreakdownCard = ({ data }: Props) => {
             setLoadingMessage("")
         }
     })
+
+    const SellerCard = ({ seller: d, index }: { seller: SellerPerformanceDTO, index: number }) => {
+        const cancelledItems =
+            (d.itemMap[ItemStatus.JOYJOY] ?? 0) +
+            (d.itemMap[ItemStatus.RTS] ?? 0);
+
+        const cancelledInvoices =
+            (d.invoiceMap[InvoiceStatus.JOYJOY] ?? 0) +
+            (d.invoiceMap[InvoiceStatus.RTS] ?? 0);
+        return (
+            <div
+                key={d.sellerId}
+                className="flex flex-col p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100 hover:shadow-md transition-shadow space-y-3"
+            >
+                {/* Header Row */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center">
+                                <User className="h-5 w-5 text-white" />
+                            </div>
+                            {index === 0 && (
+                                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                                    <Crown className="h-3 w-3 text-white" />
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900 text-sm">{d.sellerName}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <div className="font-bold text-gray-900 text-sm">{formatCurrency(d.totalRevenue)}</div>
+                        <div className="text-xs text-gray-500">Total Revenue</div>
+                    </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                    {/* Invoices Stats */}
+                    <div className="bg-white/60 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                            <FileText className="h-4 w-4 text-purple-600" />
+                            <span className="text-xs font-medium text-gray-700">Items</span>
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                                <span className="text-gray-600">Total:</span>
+                                <span className="font-medium text-gray-900">{d.totalItems}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                                <span className="text-green-600">Completed:</span>
+                                <span className="font-medium text-green-700">{d.itemMap[ItemStatus.COMPLETED] ?? 0}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                                <span className="text-red-600">Cancelled:</span>
+                                <span className="font-medium text-red-700">{cancelledItems}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Items Stats */}
+                    <div className="bg-white/60 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Package className="h-4 w-4 text-indigo-600" />
+                            <span className="text-xs font-medium text-gray-700">Invoices</span>
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                                <span className="text-gray-600">Total:</span>
+                                <span className="font-medium text-gray-900">{d.totalInvoices}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                                <span className="text-green-600">Completed:</span>
+                                <span className="font-medium text-green-700">
+                                    {d.invoiceMap[InvoiceStatus.COMPLETED] ?? 0}
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                                <span className="text-red-600">Cancelled:</span>
+                                <span className="font-medium text-red-700">
+                                    {cancelledInvoices}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Performance Metrics */}
+                <div className="flex items-center justify-between pt-2 border-t border-purple-200">
+                    <div className="flex items-center gap-4 text-xs">
+                        <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-gray-600">{getCompletionRate(d)}% completion</span>
+                        </div>
+                        {cancelledItems > 0 && (
+                            <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <span className="text-red-600">Loss: {formatCurrency(d.totalLoss)}</span>
+                            </div>
+                        )}
+                    </div>
+                    {/* <div className="text-xs text-gray-500">Avg: {formatCurrency(seller.avgOrderValue)}</div> */}
+                </div>
+            </div>
+        )
+    }
 
     return (
         <>
@@ -71,46 +181,7 @@ const AdminSellerBreakdownCard = ({ data }: Props) => {
                     {data.length > 0 ? (
                         <>
                             {data.slice(0, 5).map((d, index) => (
-                                <div
-                                    key={d.sellerId}
-                                    className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100 hover:shadow-md transition-shadow"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative">
-                                            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center">
-                                                <User className="h-5 w-5 text-white" />
-                                            </div>
-                                            {index === 0 && (
-                                                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                                                    <Crown className="h-3 w-3 text-white" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-medium text-gray-900 text-sm">{d.sellerName}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                                                <div className="flex items-center gap-1">
-                                                    <FileText className="h-3 w-3" />
-                                                    <span>{d.invoiceCount} invoices</span>
-                                                </div>
-                                                <span>•</span>
-                                                <div className="flex items-center gap-1">
-                                                    <Package className="h-3 w-3" />
-                                                    <span>{d.totalItems} items</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="font-bold text-gray-900 text-sm">{formatCurrency(d.totalRevenue)}</div>
-                                        <div className="text-xs text-gray-500">Total Revenue</div>
-                                        <div className="text-xs text-green-600 font-medium mt-1">
-                                            {getCompletionRate(d)}% completion
-                                        </div>
-                                    </div>
-                                </div>
+                                <SellerCard seller={d} index={index} key={`${d.sellerId}-${index}`} />
                             ))}
                             <Button
                                 variant="outline"

@@ -61,12 +61,12 @@ const AdminTopCustomerCard = ({ data }: Props) => {
                                                 <span>{customer.invoices.length} orders</span>
                                                 <span>•</span>
                                                 <span>{totalItems} items</span>
-                                                {customer.invoices.length > 0 && (
+                                                {/* {customer.invoices.length > 0 && (
                                                     <>
                                                         <span>•</span>
                                                         <span>Last: {formatDate(new Date(customer.invoices[0].dateIssued).toDateString())}</span>
                                                     </>
-                                                )}
+                                                )} */}
                                             </div>
                                         </div>
                                     </div>

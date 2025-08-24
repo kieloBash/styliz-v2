@@ -1,11 +1,12 @@
-import { InvoiceStatus } from "@prisma/client";
+import { InvoiceStatus, ItemStatus } from "@prisma/client";
 
 export type SellerPerformanceDTO = {
-    sellerName: string;
     sellerId: string;
-    status: InvoiceStatus,
+    sellerName: string;
     totalRevenue: number,
-    invoiceCount: number,
+    totalLoss: number,
+    totalInvoices: number,
     totalItems: number,
-    completedItems: number,
+    itemMap: Record<ItemStatus, number>
+    invoiceMap: Record<InvoiceStatus, number>
 }

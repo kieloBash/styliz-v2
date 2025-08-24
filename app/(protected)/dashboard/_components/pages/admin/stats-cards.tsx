@@ -29,7 +29,7 @@ const AdminStatsCards = ({ totalRevenue, totalInvoices, totalItems, totalCustome
         return (
             <CardContent className="relative z-10">
                 <div className="text-3xl font-bold">{displayType(data.value)}</div>
-                {data.change && data.prevValue !== undefined && data.prevValue > 0 && (
+                {data.change !== undefined && data.prevValue !== undefined && data.prevValue > 0 && (
                     <p className="text-xs text-white flex items-center gap-1 mt-1">
                         {getIcon(formatPercentage(data.change).Icon)}
                         {formatPercentage(data.change).value} from last month of {" "} {displayType(data.prevValue)}

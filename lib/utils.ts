@@ -24,7 +24,7 @@ export function formatPercentage(val: number) {
     }
   } else {
     return {
-      value: `-${val.toFixed(2)}%`,
+      value: `${val.toFixed(2)}%`,
       Icon: TrendingDownIcon
     }
   }

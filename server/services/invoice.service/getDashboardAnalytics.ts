@@ -1,11 +1,12 @@
 import { SearchCustomerSchema } from "@/app/(protected)/live/_schema";
 import { adminProcedure } from "@/server/trpc/init";
 import { FullCustomerType } from "@/types/db";
+import { SellerPerformanceDTO } from "@/types/dto/seller-performance";
 import { AnalyticsChangeData, QueryPayloadType } from "@/types/global";
 import { logger } from "@/utils/logger";
 import { endOfMonth, startOfMonth } from "date-fns";
-import { fetchRecentCustomers, fetchSellerPerformance, fetchTopCustomers, fetchTotalCustomers, fetchTotalInvoices, fetchTotalItems, fetchTotalRevenue } from "./queries";
-import { SellerPerformanceDTO } from "@/types/dto/seller-performance";
+import { fetchSellerPerformance } from "../seller.service/queries";
+import { fetchRecentCustomers, fetchTopCustomers, fetchTotalCustomers, fetchTotalInvoices, fetchTotalItems, fetchTotalRevenue } from "./queries";
 
 type PayloadType = {
     topCustomers: FullCustomerType[],
