@@ -24,11 +24,11 @@ const AdminDashboard = () => {
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const analytics = trpc.invoice.getDashboardAnalytics.useQuery({})
-    const { recentCustomers, topCustomers, totalRevenue, activeSellers, totalInvoices } = useMemo(() => ({
+    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices } = useMemo(() => ({
         recentCustomers: analytics.data?.payload?.recentCustomers ?? [],
         topCustomers: analytics.data?.payload?.topCustomers ?? [],
         totalRevenue: analytics.data?.payload?.totalRevenue,
-        activeSellers: analytics.data?.payload?.activeSellers,
+        totalItems: analytics.data?.payload?.totalItems,
         totalInvoices: analytics.data?.payload?.totalInvoices,
     }), [analytics])
 
@@ -47,10 +47,10 @@ const AdminDashboard = () => {
         <>
             <AdminBulkEditModal />
             <div className="max-w-[90rem] mx-auto p-6 space-y-8">
-                {totalInvoices && totalRevenue && activeSellers && (
+                {totalInvoices && totalRevenue && totalItems && (
                     <AdminStatsCards
                         totalRevenue={totalRevenue}
-                        activeSellers={activeSellers}
+                        totalItems={totalItems}
                         totalInvoices={totalInvoices}
                     />
                 )}

@@ -1,11 +1,63 @@
 import { SortType } from "@/types/global";
 import { UserRole } from "@/types/roles";
-import { InvoiceStatus, PrismaClient } from "@prisma/client";
+import { InvoiceStatus, ItemStatus, PrismaClient } from "@prisma/client";
 import { endOfMonth, isEqual, parseISO, startOfMonth, subMonths } from "date-fns";
 
 export async function fetchActiveSellers(prisma: PrismaClient) {
     const value = await prisma.user.count({ where: { role: { roleName: UserRole.SELLER } } }) ?? 0;
     return { value }
+}
+
+export async function fetchTotalItems(prisma: PrismaClient, from: string, to: string) {
+    const fromDate = parseISO(from);
+    const toDate = parseISO(to)
+
+    const current = await prisma.item.count({
+        where: {
+            createdAt: {
+                gte: fromDate,
+                lte: toDate
+            },
+            status: ItemStatus.COMPLETED
+        }
+    })
+
+    const currentValue = current ?? 0;
+    const isFullMonth =
+        isEqual(fromDate, startOfMonth(fromDate)) &&
+        isEqual(toDate, endOfMonth(fromDate));
+
+    if (!isFullMonth) {
+        return {
+            value: currentValue,
+        };
+    }
+
+    const prevFrom = startOfMonth(subMonths(fromDate, 1));
+    const prevTo = endOfMonth(subMonths(fromDate, 1));
+
+    const prevTotal = await prisma.item.count({
+        where: {
+            createdAt: {
+                gte: prevFrom,
+                lte: prevTo,
+            },
+            status: ItemStatus.COMPLETED,
+        },
+    })
+
+    const prevValue = prevTotal ?? 0;
+
+    let change: number | null = null;
+    if (prevValue > 0) {
+        change = ((currentValue - prevValue) / prevValue) * 100;
+    }
+
+    return {
+        prevValue,
+        value: currentValue,
+        change, // e.g. 12.5 means 12.5% higher, -5 means 5% lower
+    }
 }
 
 export async function fetchTotalInvoices(prisma: PrismaClient, from: string, to: string) {
@@ -42,7 +94,7 @@ export async function fetchTotalInvoices(prisma: PrismaClient, from: string, to:
                 gte: prevFrom,
                 lte: prevTo,
             },
-            status: "COMPLETED",
+            status: InvoiceStatus.COMPLETED,
         },
     })
 

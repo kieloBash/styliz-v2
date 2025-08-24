@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatPercentage } from '@/lib/utils';
 import { AnalyticsChangeData } from '@/types/global';
-import { DollarSign, FileText, TrendingUp, Users } from 'lucide-react';
+import { BoxIcon, DollarSign, FileText, TrendingUp, Users } from 'lucide-react';
 
 type Props = {
     totalRevenue: AnalyticsChangeData;
-    activeSellers: AnalyticsChangeData;
+    totalItems: AnalyticsChangeData;
     totalInvoices: AnalyticsChangeData;
 }
-const AdminStatsCards = ({ totalRevenue, totalInvoices, activeSellers }: Props) => {
+const AdminStatsCards = ({ totalRevenue, totalInvoices, totalItems }: Props) => {
 
     const totalCustomers = 0;
 
@@ -33,7 +33,7 @@ const AdminStatsCards = ({ totalRevenue, totalInvoices, activeSellers }: Props) 
                 {data.change && data.prevValue !== undefined && data.prevValue > 0 && (
                     <p className="text-xs text-red-200 flex items-center gap-1 mt-1">
                         {getIcon(formatPercentage(data.change).Icon)}
-                        {formatPercentage(data.change).value} from last month of                         {displayType(data.prevValue)}
+                        {formatPercentage(data.change).value} from last month of {" "} {displayType(data.prevValue)}
                     </p>
                 )}
             </CardContent>
@@ -54,10 +54,10 @@ const AdminStatsCards = ({ totalRevenue, totalInvoices, activeSellers }: Props) 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                    <CardTitle className="text-sm font-medium text-rose-100">Active Sellers</CardTitle>
-                    <Users className="h-5 w-5 text-rose-200" />
+                    <CardTitle className="text-sm font-medium text-rose-100">Total Items</CardTitle>
+                    <BoxIcon className="h-5 w-5 text-rose-200" />
                 </CardHeader>
-                {getContent(activeSellers, "none")}
+                {getContent(totalItems, "item")}
             </Card>
 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-pink-500 to-red-600 text-white overflow-hidden relative">
