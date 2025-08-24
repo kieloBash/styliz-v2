@@ -25,8 +25,8 @@ export const getDashboardAnalytics = adminProcedure
             const from = input.from ?? startOfMonth(new Date()).toISOString()
             const to = input.to ?? endOfMonth(new Date()).toISOString()
             const [topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance] = await Promise.all([
-                fetchTopCustomers(ctx.db!, input.limit ?? 5),
-                fetchRecentCustomers(ctx.db!, input.limit ?? 5),
+                fetchTopCustomers(ctx.db!, input.limit ?? 5, from, to),
+                fetchRecentCustomers(ctx.db!, input.limit ?? 5, from, to),
                 fetchTotalRevenue(ctx.db!, from, to),
                 fetchTotalItems(ctx.db!, from, to),
                 fetchTotalInvoices(ctx.db!, from, to),

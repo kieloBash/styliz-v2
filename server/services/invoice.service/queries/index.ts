@@ -222,9 +222,18 @@ export async function fetchTotalRevenue(prisma: PrismaClient, from: string, to: 
     }
 }
 
-export async function fetchTopCustomers(prisma: PrismaClient, limit = 5) {
+export async function fetchTopCustomers(prisma: PrismaClient, limit = 5, from: string, to: string) {
+    const fromDate = parseISO(from);
+    const toDate = parseISO(to)
+
     const grouped = await prisma.invoice.groupBy({
         by: ["customerId"],
+        where: {
+            dateIssued: {
+                gte: fromDate,
+                lte: toDate,
+            },
+        },
         _sum: { subTotal: true },
         orderBy: { _sum: { subTotal: SortType.DESC as any } },
         take: limit,
@@ -256,8 +265,17 @@ export async function fetchTopCustomers(prisma: PrismaClient, limit = 5) {
     }).filter(Boolean);
 }
 
-export async function fetchRecentCustomers(prisma: PrismaClient, limit = 5) {
+export async function fetchRecentCustomers(prisma: PrismaClient, limit = 5, from: string, to: string) {
+    const fromDate = parseISO(from);
+    const toDate = parseISO(to)
+
     return prisma.customer.findMany({
+        where: {
+            createdAt: {
+                gte: fromDate,
+                lte: toDate,
+            },
+        },
         select: {
             id: true,
             name: true,
