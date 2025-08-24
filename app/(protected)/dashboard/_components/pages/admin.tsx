@@ -47,11 +47,13 @@ const AdminDashboard = () => {
         <>
             <AdminBulkEditModal />
             <div className="max-w-[90rem] mx-auto p-6 space-y-8">
-                <AdminStatsCards
-                    totalRevenue={totalRevenue?.value} revenueChange={totalRevenue?.change}
-                    activeSellers={activeSellers?.value} activeSellersChange={activeSellers?.change}
-                    totalInvoices={totalInvoices?.value} totalInvoicesChange={totalInvoices?.change}
-                />
+                {totalInvoices && totalRevenue && activeSellers && (
+                    <AdminStatsCards
+                        totalRevenue={totalRevenue}
+                        activeSellers={activeSellers}
+                        totalInvoices={totalInvoices}
+                    />
+                )}
                 <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
                     <div className="lg:col-span-4 col-span-1">
                         <AllInvoicesCard

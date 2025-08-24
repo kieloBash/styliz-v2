@@ -22,14 +22,14 @@ export async function fetchTotalInvoices(prisma: PrismaClient, from: string, to:
         }
     })
 
-    const currentRevenue = current ?? 0;
+    const currentValue = current ?? 0;
     const isFullMonth =
         isEqual(fromDate, startOfMonth(fromDate)) &&
         isEqual(toDate, endOfMonth(fromDate));
 
     if (!isFullMonth) {
         return {
-            value: currentRevenue,
+            value: currentValue,
         };
     }
 
@@ -46,15 +46,16 @@ export async function fetchTotalInvoices(prisma: PrismaClient, from: string, to:
         },
     })
 
-    const prevRevenue = prevTotal ?? 0;
+    const prevValue = prevTotal ?? 0;
 
     let change: number | null = null;
-    if (prevRevenue > 0) {
-        change = ((currentRevenue - prevRevenue) / prevRevenue) * 100;
+    if (prevValue > 0) {
+        change = ((currentValue - prevValue) / prevValue) * 100;
     }
 
     return {
-        value: currentRevenue,
+        prevValue,
+        value: currentValue,
         change, // e.g. 12.5 means 12.5% higher, -5 means 5% lower
     }
 }
@@ -107,6 +108,7 @@ export async function fetchTotalRevenue(prisma: PrismaClient, from: string, to: 
     }
 
     return {
+        prevValue: prevRevenue,
         value: currentRevenue,
         change, // e.g. 12.5 means 12.5% higher, -5 means 5% lower
     }

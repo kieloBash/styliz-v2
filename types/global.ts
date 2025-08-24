@@ -5,7 +5,7 @@ export interface IClientProps {
     role: UserRole;
 }
 
-export type AnalyticsChangeData = { value: number, change?: number }
+export type AnalyticsChangeData = { value: number, change?: number, prevValue?: number }
 
 export type MetaType = {
     total: number;
