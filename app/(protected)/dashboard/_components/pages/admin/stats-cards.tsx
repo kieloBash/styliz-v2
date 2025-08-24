@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatPercentage } from '@/lib/utils';
 import { AnalyticsChangeData } from '@/types/global';
-import { BoxIcon, DollarSign, FileText, TrendingUp, Users } from 'lucide-react';
+import { BoxIcon, DollarSign, FileText, Users } from 'lucide-react';
 
 type Props = {
     totalRevenue: AnalyticsChangeData;

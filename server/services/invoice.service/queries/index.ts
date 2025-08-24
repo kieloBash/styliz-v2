@@ -1,3 +1,4 @@
+import { SellerPerformanceDTO } from "@/types/dto/seller-performance";
 import { SortType } from "@/types/global";
 import { UserRole } from "@/types/roles";
 import { InvoiceStatus, ItemStatus, PrismaClient } from "@prisma/client";
@@ -6,6 +7,45 @@ import { endOfMonth, isEqual, parseISO, startOfMonth, subMonths } from "date-fns
 export async function fetchActiveSellers(prisma: PrismaClient) {
     const value = await prisma.user.count({ where: { role: { roleName: UserRole.SELLER } } }) ?? 0;
     return { value }
+}
+
+export async function fetchSellerPerformance(prisma: PrismaClient, from: string, to: string) {
+    const fromDate = parseISO(from);
+    const toDate = parseISO(to);
+
+    const invoices = await prisma.invoice.findMany({
+        where: {
+            dateIssued: {
+                gte: fromDate,
+                lte: toDate,
+            },
+        },
+        select: { seller: { select: { id: true, name: true } }, status: true, subTotal: true, items: { select: { id: true, status: true } } }
+    });
+
+    const performance = invoices.reduce((acc, invoice) => {
+        const key = `${invoice.seller.id}-${invoice.status}`;
+        if (!acc[key]) {
+            acc[key] = {
+                sellerName: invoice.seller.name,
+                sellerId: invoice.seller.id,
+                status: invoice.status,
+                totalRevenue: 0,
+                invoiceCount: 0,
+                totalItems: 0,
+                completedItems: 0,
+            };
+        }
+
+        acc[key].completedItems += invoice.items.filter((d) => d.status === ItemStatus.COMPLETED).length;
+        acc[key].totalRevenue += invoice.subTotal;
+        acc[key].invoiceCount += 1;
+        acc[key].totalItems += invoice.items.length;
+
+        return acc;
+    }, {} as Record<string, SellerPerformanceDTO>);
+
+    return Object.values(performance);
 }
 
 export async function fetchTotalCustomers(prisma: PrismaClient, from: string, to: string) {

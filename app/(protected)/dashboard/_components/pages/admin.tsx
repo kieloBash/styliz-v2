@@ -12,6 +12,7 @@ import { columns } from "./admin/columns"
 import AdminRecentCustomerCard from "./admin/recent-customers-card"
 import AdminStatsCards from "./admin/stats-cards"
 import AdminTopCustomerCard from "./admin/top-customers-card"
+import AdminSellerBreakdownCard from "./admin/seller-breakdown"
 
 const AdminDashboard = () => {
     const searchParams = useSearchParams()
@@ -24,13 +25,14 @@ const AdminDashboard = () => {
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const analytics = trpc.invoice.getDashboardAnalytics.useQuery({})
-    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers } = useMemo(() => ({
+    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance } = useMemo(() => ({
         recentCustomers: analytics.data?.payload?.recentCustomers ?? [],
         topCustomers: analytics.data?.payload?.topCustomers ?? [],
         totalRevenue: analytics.data?.payload?.totalRevenue,
         totalItems: analytics.data?.payload?.totalItems,
         totalInvoices: analytics.data?.payload?.totalInvoices,
         totalCustomers: analytics.data?.payload?.totalCustomers,
+        sellerPerformance: analytics.data?.payload?.sellerPerformance ?? [],
     }), [analytics])
 
     const invoices = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
@@ -72,6 +74,7 @@ const AdminDashboard = () => {
                         />
                     </div>
                     <div className="grid gap-6 lg:col-span-2 col-span-1">
+                        <AdminSellerBreakdownCard data={sellerPerformance} />
                         <AdminTopCustomerCard data={topCustomers} />
                         <AdminRecentCustomerCard data={recentCustomers} />
                     </div>
