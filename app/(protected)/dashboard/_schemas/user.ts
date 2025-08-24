@@ -18,3 +18,10 @@ export const BulkEditInvoiceSchema = z.object({
     }).array().min(1, "must have at least 1 selected invoice to edit"),
     status: z.nativeEnum(InvoiceStatus)
 })
+
+export type NewSellerSchemaType = z.infer<typeof NewSellerSchema>;
+export const NewSellerSchema = z.object({
+    name: z.string().min(1, "Name is required!"),
+    email: z.string().min(1, "Email is required!"),
+    password: z.string().min(1, "Password is required!"),
+})

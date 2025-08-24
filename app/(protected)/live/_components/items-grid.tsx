@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/server/trpc/client'
+import { ItemStatus } from '@prisma/client'
 import { DollarSign, Gift } from 'lucide-react'
 import { useState } from 'react'
 import { useInvoiceStore } from '../_stores/invoiceStore'
-import { ItemStatus } from '@prisma/client'
 
 
 const ItemsGridDisplay = () => {
@@ -12,12 +12,13 @@ const ItemsGridDisplay = () => {
 
     const { actions } = useInvoiceStore();
     const addItem = (categoryId: string, price: number, isFreebie = false) => {
-        console.log("added item")
         actions.addItem({
             categoryId,
             price,
             isFreebie,
-            status: ItemStatus.COMPLETED
+            status: ItemStatus.COMPLETED,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         })
     }
 
