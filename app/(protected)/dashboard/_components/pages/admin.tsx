@@ -42,23 +42,27 @@ const AdminDashboard = () => {
     return (
         <>
             <AdminBulkEditModal />
-            <div className="max-w-7xl mx-auto p-6 space-y-8">
+            <div className="max-w-[90rem] mx-auto p-6 space-y-8">
                 <AdminStatsCards />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <AdminRecentCustomerCard data={recentCustomers} />
-                    <AdminTopCustomerCard data={topCustomers} />
+                <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
+                    <div className="lg:col-span-4 col-span-1">
+                        <AllInvoicesCard
+                            pageCount={invoices.data?.meta?.pageCount}
+                            totalInvoices={invoices.data?.meta?.total}
+                            data={filteredInvoices}
+                            isLoading={isLoading}
+                            rowsSelected={rowsSelected}
+                            isSelectingInvoice={isSelectingInvoice}
+                            clearSelected={() => { actions.setRowsSelected([]) }}
+                            onBulkEdit={() => { actions.setIsEdittingBulk(true) }}
+                            onSelectAll={() => { actions.setRowsSelected(filteredInvoices) }}
+                        />
+                    </div>
+                    <div className="grid gap-6 lg:col-span-2 col-span-1">
+                        <AdminTopCustomerCard data={topCustomers} />
+                        <AdminRecentCustomerCard data={recentCustomers} />
+                    </div>
                 </div>
-                <AllInvoicesCard
-                    pageCount={invoices.data?.meta?.pageCount}
-                    totalInvoices={invoices.data?.meta?.total}
-                    data={filteredInvoices}
-                    isLoading={isLoading}
-                    rowsSelected={rowsSelected}
-                    isSelectingInvoice={isSelectingInvoice}
-                    clearSelected={() => { actions.setRowsSelected([]) }}
-                    onBulkEdit={() => { actions.setIsEdittingBulk(true) }}
-                    onSelectAll={() => { actions.setRowsSelected(filteredInvoices) }}
-                />
                 {/* <InvoiceDataTable columns={columns} data={filteredInvoices} isLoading={isLoading} /> */}
             </div>
         </>

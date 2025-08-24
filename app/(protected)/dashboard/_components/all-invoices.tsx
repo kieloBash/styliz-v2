@@ -158,45 +158,49 @@ const AllInvoicesCard = ({ pageCount = 0, totalInvoices = 0, data, isLoading, cl
                         </CardTitle>
                         <CardDescription className="text-gray-600">View and manage all your invoices</CardDescription>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input
-                                placeholder="Search invoices..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 border-rose-200 focus:border-rose-400 focus:ring-rose-400 w-full sm:w-64"
-                            />
+                    <div className="grid gap-3">
+                        <div className="flex gap-3">
+                            <div className="relative w-full">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Input
+                                    placeholder="Search invoices..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 border-rose-200 focus:border-rose-400 focus:ring-rose-400 w-full"
+                                />
+                            </div>
+                            <Select value={filterStatus}
+                                onValueChange={(e) => {
+                                    setFilterStatus(e)
+                                }}>
+                                <SelectTrigger className="lg:w-[180px] w-full">
+                                    <SelectValue placeholder="Select a status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    {Object.keys(InvoiceStatus).map(status => (
+                                        <SelectItem key={status} value={status}>{status}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Select value={filterStatus}
-                            onValueChange={(e) => {
-                                setFilterStatus(e)
-                            }}>
-                            <SelectTrigger className="lg:w-[180px] w-full">
-                                <SelectValue placeholder="Select a status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Status</SelectItem>
-                                {Object.keys(InvoiceStatus).map(status => (
-                                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <DatePicker
-                            placeholder="Date from"
-                            onChange={handleChangeDateFrom}
-                            date={from}
-                            setDate={setFrom}
-                        />
-                        <DatePicker
-                            placeholder="Date to"
-                            onChange={handleChangeDateTo}
-                            date={to}
-                            setDate={setTo}
-                        />
-                        <Button type='button' onClick={handleChangeToToday}>
-                            {from || to ? "Clear Dates" : "Today"}
-                        </Button>
+                        <div className="flex gap-3 justify-center items-center">
+                            <DatePicker
+                                placeholder="Date from"
+                                onChange={handleChangeDateFrom}
+                                date={from}
+                                setDate={setFrom}
+                            />
+                            <DatePicker
+                                placeholder="Date to"
+                                onChange={handleChangeDateTo}
+                                date={to}
+                                setDate={setTo}
+                            />
+                            <Button type='button' onClick={handleChangeToToday}>
+                                {from || to ? "Clear Dates" : "Today"}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </CardHeader>
