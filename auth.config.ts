@@ -5,6 +5,7 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/prisma";
 import GoogleProvider from "next-auth/providers/google";
 import { createLoginAuditLog } from "./lib/audit-logs";
+import { UserRole } from "./types/roles";
 
 class InvalidLoginError extends CredentialsSignin {
     code = "InvalidCredentials"
@@ -17,6 +18,7 @@ class LoginTooManyAttemptsExceeded extends CredentialsSignin {
 export default {
     providers: [
         Credentials({
+            id: "admin-login",
             credentials: {
                 email: {
                     type: "email",
@@ -39,8 +41,10 @@ export default {
                 const password = credentials.password as string;
 
                 const user = await prisma.user.findUnique({
-                    where: { email },
-                    include: { role: true, preferences: true }
+                    where: {
+                        email, role: { roleName: UserRole.ADMIN }
+                    },
+                    include: { role: true, preferences: true },
                 })
 
                 if (!user || !user.hashedPassword) return null;
@@ -60,6 +64,63 @@ export default {
                 if (!passwordsMatch) {
                     throw new InvalidLoginError()
                 }
+
+                return {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role.roleName,
+                    image: user.image,
+                    isOnboarded: user?.isOnboarded ?? false,
+                    emailVerified: user?.emailVerified ?? undefined,
+                    preferences: {
+                        theme: user?.preferences?.theme ?? "light"
+                    }
+                };
+            },
+        }),
+        Credentials({
+            id: "seller-login",
+            credentials: {
+                username: {
+                    type: "text",
+                    label: "Username",
+                },
+            },
+            async authorize(credentials, req) {
+                console.log("Start authorize")
+
+                const ip =
+                    req.headers.get("x-forwarded-for")?.toString().split(",")[0] ??
+                    req.headers.get("x-real-ip")?.toString() ??
+                    "anonymous";
+
+                const userAgentHeader = req.headers.get("user-agent") ?? "";
+
+                const username = credentials.username as string;
+
+                const user = await prisma.user.findFirst({
+                    where: {
+                        name: {
+                            equals: username,
+                            mode: "insensitive"
+                        },
+                        role: { roleName: UserRole.SELLER }
+                    },
+                    include: { role: true, preferences: true }
+                })
+
+                if (!user) return null;
+
+                await createLoginAuditLog({
+                    userId: user?.id ?? "unknown",
+                    metadata: {
+                        ipAddress: ip,
+                        method: "credentials",
+                        success: !!(user),
+                        rawUserAgent: userAgentHeader,
+                    },
+                });
 
                 return {
                     id: user.id,

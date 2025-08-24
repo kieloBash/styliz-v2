@@ -1,6 +1,10 @@
 import { z } from "zod"
 
-export const loginSchema = z.object({
+export const sellerLoginSchema = z.object({
+    username: z.string(),
+})
+
+export const adminLoginSchema = z.object({
     email: z.string().email("Enter a valid email"),
     password: z.string().refine(d => d !== "", { message: "Password is required" }),
 })

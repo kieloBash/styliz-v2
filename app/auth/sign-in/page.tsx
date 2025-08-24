@@ -3,12 +3,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { showToast } from "@/lib/utils"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
-import LoginForm from "./_components/login-form"
-import RegisterForm from "./_components/register-form"
+import AdminLoginForm from "./_components/login-form"
+import SellerLoginForm from "./_components/seller-login-form"
 
 export default function AuthPage() {
     const searchParams = useSearchParams();
@@ -16,7 +14,7 @@ export default function AuthPage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (code === "InvalidCredentials") {
+        if (code === "credentials") {
             showToast("error", "Invalid credentials!")
             router.replace("/auth/sign-in");
         } else if (code === "EmailVerify") {
@@ -82,8 +80,13 @@ export default function AuthPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Tabs defaultValue="login" className="w-full">
-                                <LoginForm />
+                            <Tabs defaultValue="seller" className="w-full">
+                                <TabsList className="mb-4 w-full">
+                                    <TabsTrigger value="seller">Seller</TabsTrigger>
+                                    <TabsTrigger value="admin">Admin</TabsTrigger>
+                                </TabsList>
+                                <SellerLoginForm />
+                                <AdminLoginForm />
                             </Tabs>
                         </CardContent>
                     </Card>
