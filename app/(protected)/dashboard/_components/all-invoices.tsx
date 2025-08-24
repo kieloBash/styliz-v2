@@ -1,3 +1,4 @@
+import SellerSelectBar from '@/components/global/seller-select'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -164,6 +165,7 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
         </div>
     ), [UserRole.SELLER])
 
+    const DisplaySellerSelect = withRole(() => <SellerSelectBar paramName={"sellerId"} />, [UserRole.ADMIN])
 
     const totalItemsSelected = useMemo(() =>
         rowsSelected.reduce((prev, current) => current.items.length + prev, 0), [rowsSelected])
@@ -197,6 +199,7 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
                                     className="pl-10 border-rose-200 focus:border-rose-400 focus:ring-rose-400 w-full"
                                 />
                             </div>
+                            <DisplaySellerSelect role={getRole(user?.role)} />
                             <Select value={filterStatus}
                                 onValueChange={(e) => {
                                     setFilterStatus(e)
@@ -211,6 +214,7 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {/* Admins */}
                         </div>
                         {/* Sellers */}
                         <DisplayDatePickers role={getRole(user?.role)} />

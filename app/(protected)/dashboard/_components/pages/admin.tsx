@@ -22,6 +22,8 @@ const AdminDashboard = () => {
     const filterSearchParams = searchParams.get("search") ?? ""
     const filterFromDateParams = searchParams.get("from")
     const filterToDateParams = searchParams.get("to")
+    const filterSellerIdParams = searchParams.get("sellerId") ?? undefined
+
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const analytics = trpc.invoice.getDashboardAnalytics.useQuery({
@@ -39,7 +41,15 @@ const AdminDashboard = () => {
         sellerPerformance: analytics.data?.payload?.sellerPerformance ?? [],
     }), [analytics])
 
-    const invoices = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
+    const invoices = trpc.invoice.getList.useQuery({
+        limit: parseInt(limit),
+        page: parseInt(page),
+        customerName: filterSearchParams,
+        status: filterStatusParams,
+        from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined),
+        to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined),
+        sellerId: filterSellerIdParams
+    });
     const filteredInvoices = useMemo(() => invoices.data?.payload ?? [], [invoices])
 
     const isLoading = useMemo(() => analytics.isLoading || invoices.isLoading, [analytics.isLoading, invoices.isLoading])

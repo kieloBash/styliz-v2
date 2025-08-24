@@ -11,9 +11,9 @@ export const getInvoiceList = protectedProcedure
     .input(SearchInvoiceSchema)
     .query(async ({ input, ctx }): Promise<QueryPayloadType<FullInvoiceType[]>> => {
         try {
-            const { customerName, status, limit, page, from, to } = input;
+            const { customerName, status, limit, page, from, to, sellerId } = input;
             const currentUser = ctx.session.user;
-
+            
             const where: any = {
                 ...(from && to && {
                     dateIssued: {
@@ -32,7 +32,8 @@ export const getInvoiceList = protectedProcedure
                         },
                     }
                     : {}),
-                ...currentUser.role === UserRole.SELLER && { sellerId: currentUser.id }
+                ...currentUser.role === UserRole.SELLER && { sellerId: currentUser.id },
+                ...(sellerId !== "all" && { sellerId })
             };
 
             const [data, total] = await Promise.all([

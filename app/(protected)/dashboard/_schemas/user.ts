@@ -4,6 +4,7 @@ import z from "zod";
 export type SearchInvoiceType = z.infer<typeof SearchInvoiceSchema>;
 export const SearchInvoiceSchema = z.object({
     customerName: z.string().optional(),
+    sellerId: z.string().optional(),
     status: z.string().optional(),
     to: z.string().optional(),
     from: z.string().optional(),
