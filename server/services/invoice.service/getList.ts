@@ -6,6 +6,7 @@ import { QueryPayloadType } from "@/types/global";
 import { UserRole } from "@/types/roles";
 import { logger } from "@/utils/logger";
 import { endOfDay, startOfDay } from "date-fns";
+import { se } from "date-fns/locale";
 
 export const getInvoiceList = protectedProcedure
     .input(SearchInvoiceSchema)
@@ -13,7 +14,7 @@ export const getInvoiceList = protectedProcedure
         try {
             const { customerName, status, limit, page, from, to, sellerId } = input;
             const currentUser = ctx.session.user;
-            
+
             const where: any = {
                 ...(from && to && {
                     dateIssued: {
@@ -33,7 +34,7 @@ export const getInvoiceList = protectedProcedure
                     }
                     : {}),
                 ...currentUser.role === UserRole.SELLER && { sellerId: currentUser.id },
-                ...(sellerId !== "all" && { sellerId })
+                ...((sellerId !== "all" && sellerId) && { sellerId })
             };
 
             const [data, total] = await Promise.all([
