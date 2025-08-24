@@ -4,6 +4,7 @@ import { trpc } from '@/server/trpc/client'
 import { DollarSign, X } from 'lucide-react'
 import { useState } from 'react'
 import { useInvoiceStore } from '../../_stores/invoiceStore'
+import { ItemStatus } from '@prisma/client'
 
 const CustomPriceModal = () => {
     const { selectedCategory, actions } = useInvoiceStore();
@@ -17,7 +18,10 @@ const CustomPriceModal = () => {
         actions.addItem({
             categoryId: selectedCategory,
             price: parseInt(customPrice),
-            isFreebie: false
+            isFreebie: false,
+            status: ItemStatus.COMPLETED,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         })
         actions.setOpenCustomModal(false);
         actions.setSelectedCategory(null);
