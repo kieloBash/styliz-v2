@@ -8,10 +8,10 @@ import { useMemo } from "react"
 import { useAdminDashboardStore } from "../../_stores/adminDashboardStore"
 import AllInvoicesCard from "../all-invoices"
 import { AdminBulkEditModal } from "./admin/bulk-edit-modal"
+import { columns } from "./admin/columns"
 import AdminRecentCustomerCard from "./admin/recent-customers-card"
 import AdminStatsCards from "./admin/stats-cards"
 import AdminTopCustomerCard from "./admin/top-customers-card"
-import { columns } from "./admin/columns"
 
 const AdminDashboard = () => {
     const searchParams = useSearchParams()
@@ -24,12 +24,13 @@ const AdminDashboard = () => {
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const analytics = trpc.invoice.getDashboardAnalytics.useQuery({})
-    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices } = useMemo(() => ({
+    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers } = useMemo(() => ({
         recentCustomers: analytics.data?.payload?.recentCustomers ?? [],
         topCustomers: analytics.data?.payload?.topCustomers ?? [],
         totalRevenue: analytics.data?.payload?.totalRevenue,
         totalItems: analytics.data?.payload?.totalItems,
         totalInvoices: analytics.data?.payload?.totalInvoices,
+        totalCustomers: analytics.data?.payload?.totalCustomers,
     }), [analytics])
 
     const invoices = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
@@ -47,11 +48,12 @@ const AdminDashboard = () => {
         <>
             <AdminBulkEditModal />
             <div className="max-w-[90rem] mx-auto p-6 space-y-8">
-                {totalInvoices && totalRevenue && totalItems && (
+                {totalInvoices && totalRevenue && totalItems && totalCustomers && (
                     <AdminStatsCards
                         totalRevenue={totalRevenue}
                         totalItems={totalItems}
                         totalInvoices={totalInvoices}
+                        totalCustomers={totalCustomers}
                     />
                 )}
                 <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">

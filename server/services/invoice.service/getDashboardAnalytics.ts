@@ -4,7 +4,7 @@ import { FullCustomerType } from "@/types/db";
 import { AnalyticsChangeData, QueryPayloadType } from "@/types/global";
 import { logger } from "@/utils/logger";
 import { endOfMonth, startOfMonth } from "date-fns";
-import { fetchRecentCustomers, fetchTopCustomers, fetchTotalInvoices, fetchTotalItems, fetchTotalRevenue } from "./queries";
+import { fetchRecentCustomers, fetchTopCustomers, fetchTotalCustomers, fetchTotalInvoices, fetchTotalItems, fetchTotalRevenue } from "./queries";
 
 type PayloadType = {
     topCustomers: FullCustomerType[],
@@ -12,6 +12,7 @@ type PayloadType = {
     totalRevenue: AnalyticsChangeData,
     totalItems: AnalyticsChangeData,
     totalInvoices: AnalyticsChangeData,
+    totalCustomers: AnalyticsChangeData,
 }
 
 export const getDashboardAnalytics = adminProcedure
@@ -20,18 +21,19 @@ export const getDashboardAnalytics = adminProcedure
         try {
             const from = input.from ?? startOfMonth(new Date()).toISOString()
             const to = input.to ?? endOfMonth(new Date()).toISOString()
-            const [topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices] = await Promise.all([
+            const [topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers] = await Promise.all([
                 fetchTopCustomers(ctx.db!, input.limit ?? 5),
                 fetchRecentCustomers(ctx.db!, input.limit ?? 5),
                 fetchTotalRevenue(ctx.db!, from, to),
                 fetchTotalItems(ctx.db!, from, to),
                 fetchTotalInvoices(ctx.db!, from, to),
+                fetchTotalCustomers(ctx.db!, from, to),
             ])
 
             return {
                 success: true,
                 message: "Successfully fetched dashboard analytics",
-                payload: { topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices } as any
+                payload: { topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers } as any
             }
 
         } catch (error) {
