@@ -24,7 +24,11 @@ const AdminDashboard = () => {
     const filterToDateParams = searchParams.get("to")
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
-    const analytics = trpc.invoice.getDashboardAnalytics.useQuery({})
+    const analytics = trpc.invoice.getDashboardAnalytics.useQuery({
+        from: filterFromDateParams ? new Date(filterFromDateParams).toISOString() : undefined,
+        to: filterToDateParams ? new Date(filterToDateParams).toISOString() : undefined,
+    })
+
     const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance } = useMemo(() => ({
         recentCustomers: analytics.data?.payload?.recentCustomers ?? [],
         topCustomers: analytics.data?.payload?.topCustomers ?? [],

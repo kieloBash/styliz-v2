@@ -1,5 +1,6 @@
 import { DATE_FORMAT_SHORT } from "@/constants/formats";
 import { FullInvoiceType } from "@/types/db";
+import { UserRole } from "@/types/roles";
 import { InvoiceStatus } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { parse } from "date-fns";
@@ -14,6 +15,10 @@ export function cn(...inputs: ClassValue[]) {
 export function parseDate({ date, format = DATE_FORMAT_SHORT, referencedDate = new Date() }:
   { date: string, format?: string, referencedDate?: Date }) {
   return parse(date, format, referencedDate);
+}
+
+export function getRole(role?: string) {
+  return role as UserRole ?? UserRole.GUEST;
 }
 
 export function formatPercentage(val: number) {

@@ -1,19 +1,22 @@
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
-import { DATE_FORMAT_SHORT } from '@/constants/formats'
-import { useDebounce } from '@/hooks/use-Debounce'
-import { FullInvoiceType } from '@/types/db'
-import { InvoiceStatus } from '@prisma/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DATE_FORMAT_SHORT } from '@/constants/formats'
+import withRole from '@/hoc/withRole'
+import { useDebounce } from '@/hooks/use-Debounce'
+import { formatCurrency, getRole } from '@/lib/utils'
+import { FullInvoiceType } from '@/types/db'
+import { UserRole } from '@/types/roles'
+import { getUserSessionClient } from '@/utils/sessions/client'
+import { InvoiceStatus } from '@prisma/client'
+import { ColumnDef } from '@tanstack/react-table'
 import { formatDate } from 'date-fns'
 import { ChevronLeft, ChevronRight, FileText, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { InvoiceDataTable } from './data-table'
-import { Button } from '@/components/ui/button'
-import { ColumnDef } from '@tanstack/react-table'
-import { formatCurrency } from '@/lib/utils'
 
 type Props = {
     columns: ColumnDef<FullInvoiceType>[];
@@ -29,6 +32,8 @@ type Props = {
 }
 
 const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLoading, clearSelected, rowsSelected, isSelectingInvoice = false, onBulkEdit, onSelectAll }: Props) => {
+    const user = getUserSessionClient();
+
     const router = useRouter();
     const searchParams = useSearchParams()
     const limit = searchParams.get("limit") ?? "10"
@@ -139,6 +144,27 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
         handleChangeToday(newDate)
     }
 
+    const DisplayDatePickers = withRole(() => (
+        <div className="flex gap-3 justify-center items-center">
+            <DatePicker
+                placeholder="Date from"
+                onChange={handleChangeDateFrom}
+                date={from}
+                setDate={setFrom}
+            />
+            <DatePicker
+                placeholder="Date to"
+                onChange={handleChangeDateTo}
+                date={to}
+                setDate={setTo}
+            />
+            <Button type='button' onClick={handleChangeToToday}>
+                {from || to ? "Clear Dates" : "Today"}
+            </Button>
+        </div>
+    ), [UserRole.SELLER])
+
+
     const totalItemsSelected = useMemo(() =>
         rowsSelected.reduce((prev, current) => current.items.length + prev, 0), [rowsSelected])
 
@@ -186,23 +212,8 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex gap-3 justify-center items-center">
-                            <DatePicker
-                                placeholder="Date from"
-                                onChange={handleChangeDateFrom}
-                                date={from}
-                                setDate={setFrom}
-                            />
-                            <DatePicker
-                                placeholder="Date to"
-                                onChange={handleChangeDateTo}
-                                date={to}
-                                setDate={setTo}
-                            />
-                            <Button type='button' onClick={handleChangeToToday}>
-                                {from || to ? "Clear Dates" : "Today"}
-                            </Button>
-                        </div>
+                        {/* Sellers */}
+                        <DisplayDatePickers role={getRole(user?.role)} />
                     </div>
                 </div>
             </CardHeader>

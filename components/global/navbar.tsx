@@ -1,15 +1,34 @@
 'use client'
+import withRole from '@/hoc/withRole';
+import { getRole } from '@/lib/utils';
 import { trpc } from '@/server/trpc/client';
+import { UserRole } from '@/types/roles';
 import { getUserSessionClient } from '@/utils/sessions/client';
 import { LogOut, Zap } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { UserRole } from '@/types/roles';
+import DateFromAndTo from '../ui/from-to';
 
 const Navbar = () => {
     const user = getUserSessionClient();
+
     const { mutate: logout } = trpc.auth.logout.useMutation();
+
+    const LiveLink = withRole(() => {
+        return (
+            <Link href="/live">
+                <Button className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6">
+                    <Zap className="h-4 w-4" />
+                    <span>Live Sale</span>
+                </Button>
+            </Link>
+        )
+    }, [UserRole.SELLER])
+
+    const DateRange = withRole(() => (
+        <DateFromAndTo fromParam='from' toParam='to' />
+    ), [UserRole.ADMIN])
 
     return (
         <header className="fixed top-0 left-0 w-screen z-[10] bg-white/80 backdrop-blur-md border-b border-red-100 px-4 py-6 shadow-sm">
@@ -34,14 +53,8 @@ const Navbar = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    {user?.role === UserRole.SELLER && (
-                        <Link href="/live">
-                            <Button className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6">
-                                <Zap className="h-4 w-4" />
-                                <span>Live Sale</span>
-                            </Button>
-                        </Link>
-                    )}
+                    <LiveLink role={getRole(user?.role)} />
+                    <DateRange role={getRole(user?.role)} />
                     <Button
                         variant="outline"
                         onClick={async () => {
