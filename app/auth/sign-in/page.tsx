@@ -25,14 +25,14 @@ export default function AuthPage() {
     }, [code, router])
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
                 {/* Left Side - Branding */}
                 <div className="hidden lg:flex flex-col justify-center space-y-8 px-8">
                     <div className="space-y-6">
                         <div className="space-y-4">
                             <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center">
                                     <span className="text-white font-bold text-lg">S</span>
                                 </div>
                                 <span className="text-3xl font-bold">StylizSystem</span>
@@ -52,7 +52,7 @@ export default function AuthPage() {
                             <span>Invoice Live Selling</span>
                         </div>
                         <div className="flex items-center space-x-3 text-slate-600">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                             <span>Sales Monitoring</span>
                         </div>
                         <div className="flex items-center space-x-3 text-slate-600">
@@ -68,7 +68,7 @@ export default function AuthPage() {
                         <CardHeader className="space-y-1 pb-6">
                             <div className="lg:hidden flex items-center justify-center mb-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg flex items-center justify-center">
                                         <span className="text-white font-bold text-sm">S</span>
                                     </div>
                                     <span className="text-xl font-bold">StylizSystem</span>

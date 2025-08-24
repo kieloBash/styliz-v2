@@ -1,19 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { boolean, z } from "zod"
+import { z } from "zod"
 
 import FormContainer from '@/components/forms/form-container'
 import FormInput from "@/components/forms/input"
 import { useLoading } from '@/components/providers/loading-provider'
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { TabsContent } from "@/components/ui/tabs"
-import { Key, Mail, MailIcon, PhoneCallIcon } from "lucide-react"
+import { Label } from "@radix-ui/react-label"
+import { Key, MailIcon, PhoneCallIcon } from "lucide-react"
 import { registerSchema } from '../_schema'
 import { onRegisterSubmit } from "../_submit/register"
-import { Label } from "@radix-ui/react-label"
-import { Checkbox } from "@/components/ui/checkbox"
-import GoogleSignIn from "./google-signin"
 
 type Schema = z.infer<typeof registerSchema>
 
@@ -46,9 +45,9 @@ const RegisterForm = () => {
 
     return (
         <TabsContent value="register" className="space-y-4">
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
                 <GoogleSignIn />
-            </div>
+            </div> */}
 
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">

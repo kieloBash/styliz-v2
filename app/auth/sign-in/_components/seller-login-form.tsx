@@ -52,7 +52,7 @@ const SellerLoginForm = () => {
                 />
                 <Button
                     type="submit"
-                    className="mt-6 w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="mt-6 w-full h-11 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
                 >
                     Sign In as Seller
                 </Button>
