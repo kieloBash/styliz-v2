@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import { useUserDashboardStore } from '../../_stores/userDashboardStore'
 import AllInvoicesCard from '../all-invoices'
 import { BulkEditModal } from './user/bulk-edit-modal'
+import { columns } from './user/columns'
 
 const UserDashboard = () => {
     const searchParams = useSearchParams()
@@ -30,6 +31,7 @@ const UserDashboard = () => {
             <BulkEditModal />
             <div className="max-w-7xl mx-auto p-6 space-y-8">
                 <AllInvoicesCard
+                    columns={columns}
                     pageCount={data?.meta?.pageCount}
                     totalInvoices={data?.meta?.total}
                     data={filteredInvoices}

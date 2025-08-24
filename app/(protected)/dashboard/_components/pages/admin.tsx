@@ -11,6 +11,7 @@ import { AdminBulkEditModal } from "./admin/bulk-edit-modal"
 import AdminRecentCustomerCard from "./admin/recent-customers-card"
 import AdminStatsCards from "./admin/stats-cards"
 import AdminTopCustomerCard from "./admin/top-customers-card"
+import { columns } from "./admin/columns"
 
 const AdminDashboard = () => {
     const searchParams = useSearchParams()
@@ -54,6 +55,7 @@ const AdminDashboard = () => {
                 <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
                     <div className="lg:col-span-4 col-span-1">
                         <AllInvoicesCard
+                            columns={columns}
                             pageCount={invoices.data?.meta?.pageCount}
                             totalInvoices={invoices.data?.meta?.total}
                             data={filteredInvoices}

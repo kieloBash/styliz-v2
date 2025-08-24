@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { copyInvoiceToClipboard, getStatusBadgeColor, showToast } from "@/lib/utils"
+import { copyInvoiceToClipboard, formatCurrency, getStatusBadgeColor, showToast } from "@/lib/utils"
 import { FullInvoiceType } from "@/types/db"
 import { ColumnDef } from "@tanstack/react-table"
 import { CopyIcon } from "lucide-react"
@@ -84,7 +84,7 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
         cell: ({ row }) => {
             return (
                 <span className="">
-                    <span className="font-medium">₱ {row.original.subTotal.toLocaleString()}</span>
+                    <span className="font-medium">{formatCurrency(row.original.subTotal)}</span>
                 </span>
             )
         }

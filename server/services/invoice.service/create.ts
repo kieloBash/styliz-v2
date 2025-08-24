@@ -12,13 +12,14 @@ function generateSKU(prefix = "SKU", length = 6): string {
     return `${prefix}-${result}`;
 }
 
-async function createItems(db: any, invoiceId: string, items: any[]) {
+async function createItems(db: any, invoiceId: string, items: any[], createdAt: Date) {
     await db.item.createMany({
         data: items.map(d => ({
             price: d.price,
             categoryId: d.categoryId,
             invoiceId,
             status: ItemStatus.COMPLETED,
+            createdAt
         }))
     })
 }
@@ -69,7 +70,7 @@ export const createInvoice = protectedProcedure
                     }
                 })
 
-                await createItems(db, newInvoice.id, nonFreeItems);
+                await createItems(db, newInvoice.id, nonFreeItems, new Date(dateIssued));
 
                 return {
                     message: "Successfully added invoice!"
@@ -86,7 +87,7 @@ export const createInvoice = protectedProcedure
                 }
             })
 
-            await createItems(db, updatedInvoice.id, nonFreeItems);
+            await createItems(db, updatedInvoice.id, nonFreeItems, new Date(dateIssued));
 
             return {
                 message: "Successfully added invoice to existing!"

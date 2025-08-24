@@ -19,12 +19,12 @@ export function parseDate({ date, format = DATE_FORMAT_SHORT, referencedDate = n
 export function formatPercentage(val: number) {
   if (val >= 0) {
     return {
-      value: `+${val}%`,
+      value: `+${val.toFixed(2)}%`,
       Icon: TrendingUpIcon
     }
   } else {
     return {
-      value: `-${val}%`,
+      value: `-${val.toFixed(2)}%`,
       Icon: TrendingDownIcon
     }
   }

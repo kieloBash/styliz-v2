@@ -11,10 +11,12 @@ import { ChevronLeft, ChevronRight, FileText, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { InvoiceDataTable } from './data-table'
-import { columns } from './pages/admin/columns'
 import { Button } from '@/components/ui/button'
+import { ColumnDef } from '@tanstack/react-table'
+import { formatCurrency } from '@/lib/utils'
 
 type Props = {
+    columns: ColumnDef<FullInvoiceType>[];
     pageCount?: number;
     totalInvoices?: number;
     data: FullInvoiceType[];
@@ -26,7 +28,7 @@ type Props = {
     onSelectAll?: () => void
 }
 
-const AllInvoicesCard = ({ pageCount = 0, totalInvoices = 0, data, isLoading, clearSelected, rowsSelected, isSelectingInvoice = false, onBulkEdit, onSelectAll }: Props) => {
+const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLoading, clearSelected, rowsSelected, isSelectingInvoice = false, onBulkEdit, onSelectAll }: Props) => {
     const router = useRouter();
     const searchParams = useSearchParams()
     const limit = searchParams.get("limit") ?? "10"
@@ -218,7 +220,7 @@ const AllInvoicesCard = ({ pageCount = 0, totalInvoices = 0, data, isLoading, cl
                         <div className="flex items-center gap-4">
                             <span><span className="font-bold">{rowsSelected.length}</span> rows selected</span>
                             <span><span className="font-bold">{totalItemsSelected}</span> items selected</span>
-                            <span><span className="font-bold">₱{totalItemsPrice.toLocaleString()}</span> amount selected</span>
+                            <span><span className="font-bold">{formatCurrency(totalItemsPrice)}</span> amount selected</span>
                         </div>
                     </div>
                 )}

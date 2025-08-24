@@ -244,6 +244,9 @@ model Item {
   invoice  Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   category ItemCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
   @@index([invoiceId])
   @@index([categoryId])
   @@map("items")
