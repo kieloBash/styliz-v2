@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { copyInvoiceToClipboard, formatCurrency, getStatusBadgeColor, showToast } from "@/lib/utils"
 import { FullInvoiceType } from "@/types/db"
 import { ColumnDef } from "@tanstack/react-table"
-import { CopyIcon } from "lucide-react"
+import { CopyIcon, EditIcon } from "lucide-react"
 import { useAdminDashboardStore } from "../../../_stores/adminDashboardStore"
 
 export const columns: ColumnDef<FullInvoiceType>[] = [
@@ -107,12 +107,16 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
         cell: ({ row }) => {
 
             const invoice = row.original;
+            const { actions } = useAdminDashboardStore();
 
             async function handleCopy() {
                 copyInvoiceToClipboard(invoice)
                 showToast("success", `${invoice.customer.name} copied successfully!`)
             }
 
+            async function handleEdit() {
+                actions.setSelectedInvoice(invoice);
+            }
             return (
                 <div className="flex gap-2 items-center justify-center">
                     <Button
@@ -122,6 +126,14 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
                         className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
                     >
                         <CopyIcon className="h-4 w-4" /> Copy
+                    </Button>
+                    <Button
+                        onClick={handleEdit}
+                        variant="ghost"
+                        size="sm"
+                        className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                    >
+                        <EditIcon className="h-4 w-4" /> Edit
                     </Button>
                 </div>
             )

@@ -33,6 +33,7 @@ export function AdminBulkEditModal({ }: BulkEditModalProps) {
             showToast("success", "Success", data.message)
             utils.invoice.getList.invalidate()
             utils.customer.getList.invalidate()
+            utils.invoice.getDashboardAnalytics.invalidate()
             onClose()
             actions.setIsSelectingInvoice(false)
             actions.setRowsSelected([])

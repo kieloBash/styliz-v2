@@ -86,6 +86,7 @@ export const copyInvoiceToClipboard = (invoice: FullInvoiceType) => {
   if (!invoice) return;
 
   const formattedItems = invoice.items
+    .filter((d) => d.status === InvoiceStatus.COMPLETED)
     .map((item, idx) => `  ${idx + 1}. ${item.category.name} - ₱${item.price.toLocaleString()}`)
     .join("\n");
 

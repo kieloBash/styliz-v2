@@ -29,6 +29,7 @@ const EditInvoiceModal = ({ isOpen, invoice, onClose }: Props) => {
             if (data.success) {
                 showToast("success", "Success", data.message)
                 utils.invoice.getList.invalidate()
+                utils.invoice.getDashboardAnalytics.invalidate()
                 onClose();
             } else {
                 showToast("error", "Something went wrong!", data.message)

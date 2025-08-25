@@ -7,12 +7,13 @@ import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import { useAdminDashboardStore } from "../../_stores/adminDashboardStore"
 import AllInvoicesCard from "../all-invoices"
+import EditInvoiceModal from "../edit-invoice-modal"
 import { AdminBulkEditModal } from "./admin/bulk-edit-modal"
 import { columns } from "./admin/columns"
 import AdminRecentCustomerCard from "./admin/recent-customers-card"
+import AdminSellerBreakdownCard from "./admin/seller-breakdown"
 import AdminStatsCards from "./admin/stats-cards"
 import AdminTopCustomerCard from "./admin/top-customers-card"
-import AdminSellerBreakdownCard from "./admin/seller-breakdown"
 
 const AdminDashboard = () => {
     const searchParams = useSearchParams()
@@ -54,7 +55,7 @@ const AdminDashboard = () => {
 
     const isLoading = useMemo(() => analytics.isLoading || invoices.isLoading, [analytics.isLoading, invoices.isLoading])
 
-    const { actions, rowsSelected, isSelectingInvoice } = useAdminDashboardStore()
+    const { actions, rowsSelected, isSelectingInvoice, selectedInvoice } = useAdminDashboardStore()
 
     if (isLoading) {
         return <MainLoader message="Fetching data analytics, please wait..." />
@@ -62,6 +63,11 @@ const AdminDashboard = () => {
 
     return (
         <>
+            <EditInvoiceModal
+                isOpen={!!selectedInvoice}
+                onClose={() => actions.setSelectedInvoice(null)}
+                invoice={selectedInvoice}
+            />
             <AdminBulkEditModal />
             <div className="max-w-[90rem] mx-auto p-6 space-y-8">
                 {totalInvoices && totalRevenue && totalItems && totalCustomers && (
