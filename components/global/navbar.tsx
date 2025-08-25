@@ -4,7 +4,7 @@ import { getRole } from '@/lib/utils';
 import { trpc } from '@/server/trpc/client';
 import { UserRole } from '@/types/roles';
 import { getUserSessionClient } from '@/utils/sessions/client';
-import { LogOut, Zap } from 'lucide-react';
+import { CalendarIcon, LogOut, Zap } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
@@ -25,6 +25,17 @@ const Navbar = () => {
             </Link>
         )
     }, [UserRole.SELLER])
+
+    const ShiftScheduleLink = withRole(() => {
+        return (
+            <Link href="/schedule/shift">
+                <Button className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span>Shift Planner</span>
+                </Button>
+            </Link>
+        )
+    }, [UserRole.ADMIN])
 
     const DateRange = withRole(() => (
         <DateFromAndTo fromParam='from' toParam='to' />
@@ -55,6 +66,7 @@ const Navbar = () => {
                 <div className="flex items-center gap-3">
                     <LiveLink role={getRole(user?.role)} />
                     <DateRange role={getRole(user?.role)} />
+                    <ShiftScheduleLink role={getRole(user?.role)} />
                     <Button
                         variant="outline"
                         onClick={async () => {
