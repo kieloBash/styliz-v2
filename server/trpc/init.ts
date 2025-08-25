@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { logger } from "@/utils/logger";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import { prisma } from "@/prisma"
 
 export const createTRPCContext = async () => {
     const session = await auth();
