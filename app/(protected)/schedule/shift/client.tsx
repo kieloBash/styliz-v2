@@ -323,7 +323,7 @@ export default function ScheduleShiftClientPage() {
         const handleSubmit = (e: React.FormEvent) => {
             e.preventDefault()
 
-            const newShifts = []
+            const newShifts: any[] = []
             const startDate = new Date(bulkData.startDate)
             const endDate = new Date(bulkData.endDate)
 

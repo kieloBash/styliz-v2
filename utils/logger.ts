@@ -1,8 +1,19 @@
-import { createLogger, transports, format } from "winston";
+import fs from "fs";
+import path from "path";
+import { createLogger, format, transports } from "winston";
 
 const logFormat = format.printf(({ level, message, timestamp, stack }) => {
     return `${timestamp} [${level.toUpperCase()}]: ${stack || message}`;
 });
+
+const logDir = path.join(process.cwd(), "logs");
+
+// only ensure dir in non-production where filesystem is writable
+if (process.env.NODE_ENV !== "production") {
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+    }
+}
 
 export const logger = createLogger({
     level: "info",
@@ -15,7 +26,11 @@ export const logger = createLogger({
     ),
     transports: [
         new transports.Console(),
-        new transports.File({ filename: "logs/error.log", level: "error" }),
-        new transports.File({ filename: "logs/combined.log" }),
+        ...(process.env.NODE_ENV !== "production"
+            ? [
+                new transports.File({ filename: path.join(logDir, "error.log"), level: "error" }),
+                new transports.File({ filename: path.join(logDir, "combined.log") }),
+            ]
+            : []),
     ],
 });
