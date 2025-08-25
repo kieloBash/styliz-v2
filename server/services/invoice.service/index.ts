@@ -5,9 +5,11 @@ import { getDashboardAnalytics } from "./getDashboardAnalytics";
 import { getInvoiceList } from "./getList";
 import { getRecentCustomers } from "./getRecentCustomers";
 import { getTopCustomers } from "./getTopCustomers";
+import { updateInvoice } from "./update";
 
 export const invoiceRoute = {
     create: createInvoice,
+    update: { invoice: updateInvoice },
     getList: getInvoiceList,
     bulkUpdate: bulkEditInvoices,
     getRecentCustomers: getRecentCustomers,

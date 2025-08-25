@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { useMemo } from 'react'
 import { useUserDashboardStore } from '../../_stores/userDashboardStore'
 import AllInvoicesCard from '../all-invoices'
+import EditInvoiceModal from '../edit-invoice-modal'
 import { BulkEditModal } from './user/bulk-edit-modal'
 import { columns } from './user/columns'
 
@@ -20,7 +21,7 @@ const UserDashboard = () => {
 
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
-    const { actions, rowsSelected, isSelectingInvoice } = useUserDashboardStore();
+    const { actions, rowsSelected, isSelectingInvoice, selectedInvoice } = useUserDashboardStore();
 
     const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
 
@@ -28,6 +29,11 @@ const UserDashboard = () => {
 
     return (
         <>
+            <EditInvoiceModal
+                isOpen={!!selectedInvoice}
+                onClose={() => actions.setSelectedInvoice(null)}
+                invoice={selectedInvoice}
+            />
             <BulkEditModal />
             <div className="max-w-7xl mx-auto p-6 space-y-8">
                 <AllInvoicesCard

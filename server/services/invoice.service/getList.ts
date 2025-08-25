@@ -51,10 +51,10 @@ export const getInvoiceList = protectedProcedure
                         },
                         status: true,
                         items: {
-                            select: { price: true, categoryId: true, category: { select: { name: true } } },
+                            select: { id: true, price: true, categoryId: true, status: true, category: { select: { name: true, id: true } } },
                         },
                         platform: {
-                            select: { name: true }
+                            select: { name: true, id: true }
                         },
                         dateIssued: true,
                         subTotal: true,
