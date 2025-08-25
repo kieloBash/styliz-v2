@@ -20,6 +20,7 @@ const ItemSchema = z.object({
 export type UpdateInvoiceType = z.infer<typeof UpdateInvoiceSchema>;
 export const UpdateInvoiceSchema = z.object({
     invoiceId: z.string(),
+    freebies: z.number().positive(),
     dateIssued: z.string().optional(),
     status: z.nativeEnum(InvoiceStatus),
     platform: z.object({

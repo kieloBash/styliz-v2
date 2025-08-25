@@ -67,7 +67,7 @@ export const updateInvoice = protectedProcedure
                         platformId: input.platform.id,
                         sellerId: input.seller.id,
                         subTotal,
-                        freebies: Math.floor((input.updatedItems.filter((i) => i.status === ItemStatus.COMPLETED).length + input.newItems.filter((i) => i.status === ItemStatus.COMPLETED).length) / 3)
+                        freebies: Math.floor((input.updatedItems.filter((i) => i.status === ItemStatus.COMPLETED).length + input.newItems.filter((i) => i.status === ItemStatus.COMPLETED).length) / 3) + input.freebies
                     },
                 });
             });

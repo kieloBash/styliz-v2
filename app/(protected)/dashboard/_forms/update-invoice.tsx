@@ -40,6 +40,7 @@ export default function UpdateInvoiceForm({ invoice, platforms = [], categories 
         resolver: zodResolver(UpdateInvoiceSchema),
         defaultValues: {
             invoiceId: invoice.id,
+            freebies: 0,
             dateIssued: new Date(invoice.dateIssued).toISOString().split("T")[0],
             status: InvoiceStatus.COMPLETED,
             platform: { id: invoice.platform.id, name: invoice.platform.name },
@@ -411,7 +412,17 @@ export default function UpdateInvoiceForm({ invoice, platforms = [], categories 
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                                <Label className="text-xs text-gray-600">Freebie</Label>
+                                <Input
+                                    placeholder="0.00"
+                                    type="number"
+                                    step="1"
+                                    className="h-9 text-xs"
+                                    {...form.register(`freebies`, { valueAsNumber: true })}
+                                />
+                            </div>
                             {getSellerSelect()}
                             {getPlatformSelect()}
                         </div>
