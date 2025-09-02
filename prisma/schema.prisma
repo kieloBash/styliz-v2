@@ -123,7 +123,33 @@ model UserProfile {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  rate   Int
+  shifts Shift[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("user-profiles")
+}
+
+enum ShiftStatus {
+  NO_SHOW
+  CANCELLED
+  ASSIGNED
+  COMPLETED
+}
+
+model Shift {
+  id            String @id @default(cuid())
+  userProfileId String
+
+  start  DateTime
+  end    DateTime
+  status ShiftStatus
+
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@map("shifts")
 }
 
 model Notification {
@@ -246,7 +272,7 @@ model Item {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([invoiceId])
   @@index([categoryId])
   @@map("items")

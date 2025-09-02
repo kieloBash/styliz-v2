@@ -42,6 +42,11 @@ export const createSeller = adminProcedure
                     roleId: sellerRole.id,
                     isOnboarded: true,
                     emailVerified: new Date(),
+                    userProfile: {
+                        create: {
+                            rate: input.rate,
+                        }
+                    }
                 },
             });
 

@@ -5,7 +5,8 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertCircle, Eye, EyeOff, Lock, Mail, Plus, UserPlus, X } from "lucide-react"
+import { DEFAULT_MINIMUM_RATE } from "@/constants/formats"
+import { AlertCircle, DollarSignIcon, Eye, EyeOff, Lock, Mail, Plus, UserPlus, X } from "lucide-react"
 import { useState } from "react"
 import { NewSellerSchemaType } from "../../../_schemas"
 
@@ -20,6 +21,7 @@ export function CreateSellerModal({ isOpen, onClose, onCreateSeller }: CreateSel
         name: "",
         email: "",
         password: "",
+        rate: DEFAULT_MINIMUM_RATE
     })
 
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -59,6 +61,7 @@ export function CreateSellerModal({ isOpen, onClose, onCreateSeller }: CreateSel
                 name: "",
                 email: "",
                 password: "",
+                rate: DEFAULT_MINIMUM_RATE
             })
 
             onClose()
@@ -183,6 +186,25 @@ export function CreateSellerModal({ isOpen, onClose, onCreateSeller }: CreateSel
                                 {errors.password}
                             </div>
                         )}
+                    </div>
+
+                    {/* Rate Field */}
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-gray-700 font-medium">
+                            Rate *
+                        </Label>
+                        <div className="relative">
+                            <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                                id="rate"
+                                type="number"
+                                value={formData.rate}
+                                onChange={(e) => handleInputChange("rate", e.target.value)}
+                                className={`pl-10 border-purple-200 focus:border-purple-400 focus:ring-purple-400 h-12 ${errors.email ? "border-red-400" : ""
+                                    }`}
+                                placeholder="Enter rate per live"
+                            />
+                        </div>
                     </div>
                 </form>
 

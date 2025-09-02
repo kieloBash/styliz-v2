@@ -1,3 +1,4 @@
+import { DEFAULT_MINIMUM_RATE } from "@/constants/formats";
 import { InvoiceStatus } from "@prisma/client";
 import z from "zod";
 
@@ -25,4 +26,5 @@ export const NewSellerSchema = z.object({
     name: z.string().min(1, "Name is required!"),
     email: z.string().min(1, "Email is required!"),
     password: z.string().min(1, "Password is required!"),
+    rate: z.number().positive().default(DEFAULT_MINIMUM_RATE),
 })

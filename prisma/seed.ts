@@ -1,3 +1,4 @@
+import { DEFAULT_MINIMUM_RATE } from "@/constants/formats";
 import { prisma } from "@/prisma";
 import { UserRole } from "@/types/roles";
 import bcrypt from "bcryptjs";
@@ -94,6 +95,15 @@ async function main() {
     update: {},
     create: {
       userId: admin.id
+    },
+  });
+
+  await prisma.userProfile.upsert({
+    where: { userId: seller.id },
+    update: {},
+    create: {
+      rate: DEFAULT_MINIMUM_RATE,
+      userId: seller.id
     },
   });
 
