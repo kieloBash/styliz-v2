@@ -21,13 +21,21 @@ export const updateInvoice = protectedProcedure
 
             let newStatus = input.status;
             let forceStatusChange = false;
+            let updatedFreebies = 0;
 
             const oldInvoice = await ctx.db!.invoice.findFirstOrThrow({
                 where: { id: input.invoiceId },
-                select: { status: true }
+                select: { status: true, freebies: true }
             }).catch(() => {
                 throw new Error("Invoice not found!");
             })
+
+            if (input.freebies !== oldInvoice.freebies) {
+                updatedFreebies = input.freebies;
+            } else {
+                // updatedFreebies = Math.floor((input.newItems.filter((i) => i.status === ItemStatus.COMPLETED).length + input.updatedItems.filter((i) => i.status === ItemStatus.COMPLETED).length) / 3) + (oldInvoice.freebies ?? 0)
+                updatedFreebies = (oldInvoice.freebies ?? 0);
+            }
 
             if (newStatus !== InvoiceStatus.COMPLETED && oldInvoice.status !== newStatus) {
                 forceStatusChange = true
@@ -71,7 +79,7 @@ export const updateInvoice = protectedProcedure
                         platformId: input.platform.id,
                         sellerId: input.seller.id,
                         subTotal,
-                        freebies: Math.floor((input.updatedItems.filter((i) => i.status === ItemStatus.COMPLETED).length + input.newItems.filter((i) => i.status === ItemStatus.COMPLETED).length) / 3) + input.freebies
+                        freebies: updatedFreebies
                     },
                 });
             });
