@@ -69,6 +69,17 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
         }
     },
     {
+        accessorKey: "freebies",
+        header: "Freebies",
+        cell: ({ row }) => {
+            return (
+                <span className="">
+                    <span className="font-medium">{row.original.freebies}</span> free
+                </span>
+            )
+        }
+    },
+    {
         accessorFn: (row) => row.items.length ?? 0,
         id: "cancelledItems",
         header: "Cancelled",
@@ -76,17 +87,6 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
             return (
                 <span className="">
                     <span className="font-medium">{row.original.items.filter((d) => d.status !== ItemStatus.COMPLETED).length ?? 0}</span> items
-                </span>
-            )
-        }
-    },
-    {
-        accessorKey: "freebies",
-        header: "Freebies",
-        cell: ({ row }) => {
-            return (
-                <span className="">
-                    <span className="font-medium">{row.original.freebies}</span> free
                 </span>
             )
         }
