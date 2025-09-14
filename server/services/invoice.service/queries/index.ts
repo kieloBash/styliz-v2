@@ -8,6 +8,39 @@ export async function fetchActiveSellers(prisma: PrismaClient) {
     return { value }
 }
 
+export async function deleteItems(prisma: PrismaClient, ids: string[]) {
+    const { count } = await prisma.item.deleteMany({
+        where: { id: { in: ids } },
+    });
+    return count;
+}
+
+export async function createItems(prisma: PrismaClient, items: any[], invoiceId: string) {
+    return await prisma.item.createMany({
+        data: items.map((d) => ({
+            price: d.price,
+            categoryId: d.category.id,
+            status: d.status,
+            invoiceId
+        })),
+    });
+}
+
+export async function updateItems(prisma: PrismaClient, items: any[]) {
+    await Promise.all(
+        items.map((d) =>
+            prisma.item.update({
+                where: { id: d.itemId },
+                data: {
+                    price: d.price,
+                    categoryId: d.category.id,
+                    status: d.status,
+                },
+            })
+        )
+    );
+}
+
 export async function fetchTotalCustomers(prisma: PrismaClient, from: string, to: string) {
     const fromDate = parseISO(from);
     const toDate = parseISO(to)

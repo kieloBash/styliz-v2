@@ -40,9 +40,9 @@ export default function UpdateInvoiceForm({ invoice, platforms = [], categories 
         resolver: zodResolver(UpdateInvoiceSchema),
         defaultValues: {
             invoiceId: invoice.id,
-            freebies: 0,
+            freebies: invoice.freebies ?? 0,
             dateIssued: new Date(invoice.dateIssued).toISOString().split("T")[0],
-            status: InvoiceStatus.COMPLETED,
+            status: invoice.status,
             platform: { id: invoice.platform.id, name: invoice.platform.name },
             seller: { id: invoice.seller.id, name: invoice.seller.name },
             customer: { id: invoice.customer.id, name: invoice.customer.name },
