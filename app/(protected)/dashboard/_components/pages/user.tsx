@@ -1,5 +1,6 @@
 'use client'
 import { DATE_FORMAT_SHORT } from '@/constants/formats'
+import { showToast } from '@/lib/utils'
 import { trpc } from '@/server/trpc/client'
 import { formatDate } from 'date-fns'
 import { useSearchParams } from 'next/navigation'
@@ -9,8 +10,12 @@ import AllInvoicesCard from '../all-invoices'
 import EditInvoiceModal from '../edit-invoice-modal'
 import { BulkEditModal } from './user/bulk-edit-modal'
 import { columns } from './user/columns'
+import { useLoading } from '@/components/providers/loading-provider'
 
 const UserDashboard = () => {
+    const { setIsLoading, setLoadingMessage } = useLoading()
+    const utils = trpc.useUtils();
+
     const searchParams = useSearchParams()
     const limit = searchParams.get("limit") ?? "10"
     const page = searchParams.get("page") ?? "1"
@@ -24,6 +29,27 @@ const UserDashboard = () => {
     const { actions, rowsSelected, isSelectingInvoice, selectedInvoice } = useUserDashboardStore();
 
     const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
+
+    const deleteInvoices = trpc.invoice.delete.bulk.useMutation({
+        onMutate: () => {
+            setIsLoading(true)
+            setLoadingMessage(`Deleting ${rowsSelected.length} invoices...`);
+        },
+        onSuccess: (data) => {
+            showToast("success", "Success", data.message)
+            utils.invoice.getList.invalidate()
+            utils.customer.getList.invalidate()
+            actions.setIsSelectingInvoice(false)
+            actions.setRowsSelected([])
+        },
+        onError: (error) => {
+            showToast("error", "Something went wrong!", error.message)
+        },
+        onSettled: () => {
+            setIsLoading(false)
+            setLoadingMessage("")
+        }
+    })
 
     const filteredInvoices = useMemo(() => data?.payload ?? [], [data])
 
@@ -44,6 +70,11 @@ const UserDashboard = () => {
                     isLoading={isLoading}
                     rowsSelected={rowsSelected}
                     isSelectingInvoice={isSelectingInvoice}
+                    deleteSelected={() => {
+                        deleteInvoices.mutate({
+                            invoiceIds: rowsSelected.map(({ id }) => ({ id }))
+                        })
+                    }}
                     clearSelected={() => { actions.setRowsSelected([]) }}
                     onBulkEdit={() => { actions.setIsEdittingBulk(true) }}
                     onSelectAll={() => { actions.setRowsSelected(filteredInvoices) }}

@@ -1,6 +1,8 @@
 'use client'
 import MainLoader from "@/components/global/loader"
+import { useLoading } from "@/components/providers/loading-provider"
 import { DATE_FORMAT_SHORT } from "@/constants/formats"
+import { showToast } from "@/lib/utils"
 import { trpc } from "@/server/trpc/client"
 import { formatDate } from "date-fns"
 import { useSearchParams } from "next/navigation"
@@ -57,6 +59,30 @@ const AdminDashboard = () => {
 
     const { actions, rowsSelected, isSelectingInvoice, selectedInvoice } = useAdminDashboardStore()
 
+    const { setIsLoading, setLoadingMessage } = useLoading()
+    const utils = trpc.useUtils();
+    const deleteInvoices = trpc.invoice.delete.bulk.useMutation({
+        onMutate: () => {
+            setIsLoading(true)
+            setLoadingMessage(`Deleting ${rowsSelected.length} invoices...`);
+        },
+        onSuccess: (data) => {
+            showToast("success", "Success", data.message)
+            utils.invoice.getList.invalidate()
+            utils.invoice.getDashboardAnalytics.invalidate()
+            actions.setIsSelectingInvoice(false)
+            actions.setRowsSelected([])
+        },
+        onError: (error) => {
+            showToast("error", "Something went wrong!", error.message)
+        },
+        onSettled: () => {
+            setIsLoading(false)
+            setLoadingMessage("")
+        }
+    })
+
+
     if (isLoading) {
         return <MainLoader message="Fetching data analytics, please wait..." />
     }
@@ -81,6 +107,11 @@ const AdminDashboard = () => {
                 <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
                     <div className="lg:col-span-4 col-span-1">
                         <AllInvoicesCard
+                            deleteSelected={() => {
+                                deleteInvoices.mutate({
+                                    invoiceIds: rowsSelected.map(({ id }) => ({ id }))
+                                })
+                            }}
                             columns={columns}
                             pageCount={invoices.data?.meta?.pageCount}
                             totalInvoices={invoices.data?.meta?.total}

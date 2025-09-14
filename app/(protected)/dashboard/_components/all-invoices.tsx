@@ -26,13 +26,14 @@ type Props = {
     data: FullInvoiceType[];
     isLoading: boolean;
     clearSelected: () => void;
+    deleteSelected: () => void;
     rowsSelected: FullInvoiceType[];
     isSelectingInvoice?: boolean
     onBulkEdit?: () => void
     onSelectAll?: () => void
 }
 
-const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLoading, clearSelected, rowsSelected, isSelectingInvoice = false, onBulkEdit, onSelectAll }: Props) => {
+const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLoading, clearSelected, rowsSelected, isSelectingInvoice = false, onBulkEdit, onSelectAll, deleteSelected }: Props) => {
     const user = getUserSessionClient();
 
     const router = useRouter();
@@ -256,6 +257,8 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
                                 onClick={onSelectAll}>Select All</Button>
                             <Button type='button' variant={"outline"}
                                 onClick={() => { clearSelected(); }}>Clear All</Button>
+                            <Button disabled={rowsSelected.length === 0} type='button' variant={"outline"}
+                                onClick={() => { deleteSelected(); }}>Delete Selected</Button>
                         </div>
                         <div className="flex items-center gap-4">
                             <span><span className="font-bold">{rowsSelected.length}</span> rows selected</span>
