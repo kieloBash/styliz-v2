@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { copyInvoiceToClipboard, formatCurrency, getStatusBadgeColor, showToast } from "@/lib/utils"
 import { FullInvoiceType } from "@/types/db"
+import { ItemStatus } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import { CopyIcon, EditIcon } from "lucide-react"
 import { useAdminDashboardStore } from "../../../_stores/adminDashboardStore"
@@ -51,9 +52,14 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
         header: "Seller"
     },
     {
+        accessorFn: (row) => row.platform.name,
+        id: "platformName",
+        header: "Platorm",
+    },
+    {
         accessorFn: (row) => row.items.length ?? 0,
         id: "itemCount",
-        header: "Items",
+        header: "Total Items",
         cell: ({ row }) => {
             return (
                 <span className="">
@@ -63,9 +69,16 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
         }
     },
     {
-        accessorFn: (row) => row.platform.name,
-        id: "platformName",
-        header: "Platorm",
+        accessorFn: (row) => row.items.length ?? 0,
+        id: "cancelledItems",
+        header: "Cancelled",
+        cell: ({ row }) => {
+            return (
+                <span className="">
+                    <span className="font-medium">{row.original.items.filter((d) => d.status !== ItemStatus.COMPLETED).length ?? 0}</span> items
+                </span>
+            )
+        }
     },
     {
         accessorKey: "freebies",
