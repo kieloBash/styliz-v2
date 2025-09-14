@@ -59,11 +59,11 @@ export const columns: ColumnDef<FullInvoiceType>[] = [
     {
         accessorFn: (row) => row.items.length ?? 0,
         id: "itemCount",
-        header: "Total Items",
+        header: "Total Items Completed",
         cell: ({ row }) => {
             return (
                 <span className="">
-                    <span className="font-medium">{row.original.items.length ?? 0}</span> items
+                    <span className="font-medium">{row.original.items.filter((d) => d.status === ItemStatus.COMPLETED).length ?? 0}</span> items
                 </span>
             )
         }
