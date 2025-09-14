@@ -1,4 +1,5 @@
 import { DEFAULT_MINIMUM_RATE } from "@/constants/formats";
+import { SELLERS } from "@/constants/seller-data";
 import { prisma } from "@/prisma";
 import { UserRole } from "@/types/roles";
 import bcrypt from "bcryptjs";
@@ -76,34 +77,32 @@ async function main() {
     },
   });
 
-  const seller = await prisma.user.upsert({
-    where: { email: "seller@gmail.com" },
-    update: {},
-    create: {
-      email: "seller@gmail.com",
-      name: "Seller",
-      roleId: sellerRole!.id,
-      hashedPassword: password,
-      isActive: true,
-      isOnboarded: true,
-      emailVerified: new Date()
-    },
-  });
+  for (const user of SELLERS) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        email: user.email,
+        name: user.name,
+        roleId: sellerRole!.id,
+        hashedPassword: password,
+        isActive: true,
+        isOnboarded: true,
+        emailVerified: new Date(),
+        userProfile: {
+          create: {
+            rate: user.rate
+          }
+        }
+      },
+    });
+  }
 
   await prisma.adminProfile.upsert({
     where: { userId: admin.id },
     update: {},
     create: {
       userId: admin.id
-    },
-  });
-
-  await prisma.userProfile.upsert({
-    where: { userId: seller.id },
-    update: {},
-    create: {
-      rate: DEFAULT_MINIMUM_RATE,
-      userId: seller.id
     },
   });
 
