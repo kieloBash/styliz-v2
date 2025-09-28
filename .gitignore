@@ -46,6 +46,7 @@ prisma/dev.db-journal
 prisma/*.db
 app/generated/
 .env
+.env.*
 
 # Next.js
 .next/

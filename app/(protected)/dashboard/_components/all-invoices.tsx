@@ -13,7 +13,7 @@ import { UserRole } from '@/types/roles'
 import { getUserSessionClient } from '@/utils/sessions/client'
 import { InvoiceStatus } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
-import { formatDate } from 'date-fns'
+import { format, formatDate } from 'date-fns'
 import { ChevronLeft, ChevronRight, FileText, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -42,15 +42,15 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
     const page = searchParams.get("page") ?? "1"
     const filterStatusParams = searchParams.get("status") ?? "all"
     const filterSearchParams = searchParams.get("search") ?? ""
-    const filterFromDateParams = searchParams.get("from")
-    const filterToDateParams = searchParams.get("to")
+    const filterFromDateParams = searchParams.get("from") ?? format(new Date, "yyyy-MM-dd");
+    const filterToDateParams = searchParams.get("to") ?? format(new Date, "yyyy-MM-dd");
 
     const [searchTerm, setSearchTerm] = useState(filterSearchParams)
     const [filterStatus, setFilterStatus] = useState(filterStatusParams)
     const debouncedSearch = useDebounce(searchTerm, 500);
 
-    const [from, setFrom] = useState<Date | undefined>(filterFromDateParams ? new Date(filterFromDateParams) : undefined);
-    const [to, setTo] = useState<Date | undefined>(filterToDateParams ? new Date(filterToDateParams) : undefined);
+    const [from, setFrom] = useState<Date | undefined>(filterFromDateParams ? new Date(filterFromDateParams) : new Date());
+    const [to, setTo] = useState<Date | undefined>(filterToDateParams ? new Date(filterToDateParams) : new Date());
 
     useEffect(() => {
         handleChangeSearchFilter(debouncedSearch);

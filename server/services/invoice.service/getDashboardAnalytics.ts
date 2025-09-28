@@ -4,7 +4,7 @@ import { FullCustomerType } from "@/types/db";
 import { SellerPerformanceDTO } from "@/types/dto/seller-performance";
 import { AnalyticsChangeData, QueryPayloadType } from "@/types/global";
 import { logger } from "@/utils/logger";
-import { endOfMonth, startOfMonth } from "date-fns";
+import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
 import { fetchSellerPerformance } from "../seller.service/queries";
 import { fetchRecentCustomers, fetchTopCustomers, fetchTotalCustomers, fetchTotalInvoices, fetchTotalItems, fetchTotalRevenue } from "./queries";
 
@@ -22,8 +22,9 @@ export const getDashboardAnalytics = adminProcedure
     .input(SearchCustomerSchema)
     .query(async ({ ctx, input }): Promise<QueryPayloadType<PayloadType>> => {
         try {
-            const from = input.from ?? startOfMonth(new Date()).toISOString()
-            const to = input.to ?? endOfMonth(new Date()).toISOString()
+            const from = input.from ? startOfDay(input.from).toISOString() : startOfMonth(new Date()).toISOString()
+            const to = input.to ? endOfDay(input.to).toISOString() : endOfMonth(new Date()).toISOString()
+
             const [topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance] = await Promise.all([
                 fetchTopCustomers(ctx.db!, input.limit ?? 5, from, to),
                 fetchRecentCustomers(ctx.db!, input.limit ?? 5, from, to),

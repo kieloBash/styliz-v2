@@ -4,7 +4,7 @@ import { useLoading } from "@/components/providers/loading-provider"
 import { DATE_FORMAT_SHORT } from "@/constants/formats"
 import { showToast } from "@/lib/utils"
 import { trpc } from "@/server/trpc/client"
-import { formatDate } from "date-fns"
+import { format, formatDate } from "date-fns"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import { useAdminDashboardStore } from "../../_stores/adminDashboardStore"
@@ -23,15 +23,15 @@ const AdminDashboard = () => {
     const page = searchParams.get("page") ?? "1"
     const filterStatusParams = searchParams.get("status") ?? "all"
     const filterSearchParams = searchParams.get("search") ?? ""
-    const filterFromDateParams = searchParams.get("from")
-    const filterToDateParams = searchParams.get("to")
+    const filterFromDateParams = searchParams.get("from") ?? format(new Date, "yyyy-MM-dd");
+    const filterToDateParams = searchParams.get("to") ?? format(new Date, "yyyy-MM-dd");
     const filterSellerIdParams = searchParams.get("sellerId") ?? undefined
 
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const analytics = trpc.invoice.getDashboardAnalytics.useQuery({
-        from: filterFromDateParams ? new Date(filterFromDateParams).toISOString() : undefined,
-        to: filterToDateParams ? new Date(filterToDateParams).toISOString() : undefined,
+        from: filterFromDateParams ? new Date(filterFromDateParams).toISOString() : new Date().toISOString(),
+        to: filterToDateParams ? new Date(filterToDateParams).toISOString() : new Date().toISOString(),
     })
 
     const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance } = useMemo(() => ({
@@ -49,8 +49,8 @@ const AdminDashboard = () => {
         page: parseInt(page),
         customerName: filterSearchParams,
         status: filterStatusParams,
-        from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined),
-        to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined),
+        from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : new Date()),
+        to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : new Date()),
         sellerId: filterSellerIdParams
     });
     const filteredInvoices = useMemo(() => invoices.data?.payload ?? [], [invoices])

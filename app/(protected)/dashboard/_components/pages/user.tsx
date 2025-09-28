@@ -2,7 +2,7 @@
 import { DATE_FORMAT_SHORT } from '@/constants/formats'
 import { showToast } from '@/lib/utils'
 import { trpc } from '@/server/trpc/client'
-import { formatDate } from 'date-fns'
+import { format, formatDate } from 'date-fns'
 import { useSearchParams } from 'next/navigation'
 import { useMemo } from 'react'
 import { useUserDashboardStore } from '../../_stores/userDashboardStore'
@@ -21,14 +21,14 @@ const UserDashboard = () => {
     const page = searchParams.get("page") ?? "1"
     const filterStatusParams = searchParams.get("status") ?? "all"
     const filterSearchParams = searchParams.get("search") ?? ""
-    const filterFromDateParams = searchParams.get("from")
-    const filterToDateParams = searchParams.get("to")
+    const filterFromDateParams = searchParams.get("from") ?? format(new Date, "yyyy-MM-dd");
+    const filterToDateParams = searchParams.get("to") ?? format(new Date, "yyyy-MM-dd");
 
     const getFormattedDate = (date: Date | undefined) => date ? formatDate(date, DATE_FORMAT_SHORT) : undefined;
 
     const { actions, rowsSelected, isSelectingInvoice, selectedInvoice } = useUserDashboardStore();
 
-    const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : undefined), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : undefined) });
+    const { data, isLoading } = trpc.invoice.getList.useQuery({ limit: parseInt(limit), page: parseInt(page), customerName: filterSearchParams, status: filterStatusParams, from: getFormattedDate(filterFromDateParams ? new Date(filterFromDateParams) : new Date()), to: getFormattedDate(filterToDateParams ? new Date(filterToDateParams) : new Date()) });
 
     const deleteInvoices = trpc.invoice.delete.bulk.useMutation({
         onMutate: () => {

@@ -1,6 +1,6 @@
 'use client'
 import { DATE_FORMAT_SHORT } from '@/constants/formats'
-import { formatDate } from 'date-fns'
+import { format, formatDate } from 'date-fns'
 import { Calendar1Icon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
@@ -17,8 +17,8 @@ const DateFromAndTo = ({ fromParam = "from", toParam = "to", clearSelected }: Pr
     const searchParams = useSearchParams()
     const router = useRouter();
 
-    const filterFromDateParams = searchParams.get(fromParam)
-    const filterToDateParams = searchParams.get("to")
+    const filterFromDateParams = searchParams.get(fromParam) ?? format(new Date, "yyyy-MM-dd");
+    const filterToDateParams = searchParams.get(toParam) ?? format(new Date, "yyyy-MM-dd");
     const [from, setFrom] = useState<Date | undefined>(filterFromDateParams ? new Date(filterFromDateParams) : undefined);
     const [to, setTo] = useState<Date | undefined>(filterToDateParams ? new Date(filterToDateParams) : undefined);
 
