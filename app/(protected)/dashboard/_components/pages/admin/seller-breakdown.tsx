@@ -9,6 +9,14 @@ import { Crown, FileText, Package, PlusIcon, User, Users } from 'lucide-react'
 import { useState } from 'react'
 import { CreateSellerModal } from './create-seller-modal'
 
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel"
+
 type Props = { data: SellerPerformanceDTO[] }
 
 const AdminSellerBreakdownCard = ({ data }: Props) => {
@@ -180,15 +188,23 @@ const AdminSellerBreakdownCard = ({ data }: Props) => {
                 <CardContent className="space-y-3">
                     {data.length > 0 ? (
                         <>
-                            {data.slice(0, 5).map((d, index) => (
-                                <SellerCard seller={d} index={index} key={`${d.sellerId}-${index}`} />
-                            ))}
-                            <Button
-                                variant="outline"
-                                className="w-full mt-3 border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
-                            >
-                                View All Sellers
-                            </Button>
+                            <Carousel
+                                className='relative'
+                                opts={{
+                                    align: "start",
+                                }}>
+                                <CarouselContent className='max-w-sm'>
+                                    {data.map((d, index) => (
+                                        <CarouselItem key={`${d.sellerId}-${index}`}>
+                                            <SellerCard seller={d} index={index} />
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                {/* <div className="absolute bottom-0 right-0">
+                                    <CarouselPrevious className='bottom-0 right-10' />
+                                    <CarouselNext className='bottom-0 right-10' />
+                                </div> */}
+                            </Carousel>
                         </>
                     ) : (
                         <div className="text-center py-8 text-gray-500">

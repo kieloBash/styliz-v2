@@ -38,7 +38,7 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
 
     const router = useRouter();
     const searchParams = useSearchParams()
-    const limit = searchParams.get("limit") ?? "10"
+    const limit = searchParams.get("limit") ?? "40"
     const page = searchParams.get("page") ?? "1"
     const filterStatusParams = searchParams.get("status") ?? "all"
     const filterSearchParams = searchParams.get("search") ?? ""

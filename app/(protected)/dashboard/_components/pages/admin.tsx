@@ -19,7 +19,7 @@ import AdminTopCustomerCard from "./admin/top-customers-card"
 
 const AdminDashboard = () => {
     const searchParams = useSearchParams()
-    const limit = searchParams.get("limit") ?? "10"
+    const limit = searchParams.get("limit") ?? "40"
     const page = searchParams.get("page") ?? "1"
     const filterStatusParams = searchParams.get("status") ?? "all"
     const filterSearchParams = searchParams.get("search") ?? ""

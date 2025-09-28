@@ -75,5 +75,5 @@ export async function fetchSellerPerformance(prisma: PrismaClient, from: string,
         return acc;
     }, {} as Record<string, SellerPerformanceDTO>);
 
-    return Object.values(performance);
+    return Object.values(performance).sort((a, b) => b.totalRevenue - a.totalRevenue);
 }
