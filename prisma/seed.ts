@@ -91,7 +91,7 @@ async function main() {
         userProfile: {
           create: {
             rate: user.rate,
-            color: "bg-rose-500"
+            // color: "bg-rose-500"
           }
         }
       },

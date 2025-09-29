@@ -45,7 +45,7 @@ export const createSeller = adminProcedure
                     userProfile: {
                         create: {
                             rate: input.rate,
-                            color: "bg-rose-500"
+                            // color: "bg-rose-500"
                         }
                     }
                 },
