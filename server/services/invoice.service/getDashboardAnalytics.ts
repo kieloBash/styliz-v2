@@ -7,6 +7,8 @@ import { logger } from "@/utils/logger";
 import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
 import { fetchSellerPerformance } from "../seller.service/queries";
 import { fetchRecentCustomers, fetchTopCustomers, fetchTotalCustomers, fetchTotalInvoices, fetchTotalItems, fetchTotalRevenue } from "./queries";
+import { fetchItemCategoryPerformance } from "../categories.service/queries";
+import { ItemPerformanceDTO } from "@/types/dto/item-category-performance";
 
 type PayloadType = {
     topCustomers: FullCustomerType[],
@@ -16,6 +18,7 @@ type PayloadType = {
     totalInvoices: AnalyticsChangeData,
     totalCustomers: AnalyticsChangeData,
     sellerPerformance: SellerPerformanceDTO[]
+    itemPerformance: ItemPerformanceDTO[]
 }
 
 export const getDashboardAnalytics = adminProcedure
@@ -25,7 +28,7 @@ export const getDashboardAnalytics = adminProcedure
             const from = input.from ? startOfDay(input.from).toISOString() : startOfMonth(new Date()).toISOString()
             const to = input.to ? endOfDay(input.to).toISOString() : endOfMonth(new Date()).toISOString()
 
-            const [topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance] = await Promise.all([
+            const [topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance, itemPerformance] = await Promise.all([
                 fetchTopCustomers(ctx.db!, input.limit ?? 5, from, to),
                 fetchRecentCustomers(ctx.db!, input.limit ?? 5, from, to),
                 fetchTotalRevenue(ctx.db!, from, to),
@@ -33,12 +36,13 @@ export const getDashboardAnalytics = adminProcedure
                 fetchTotalInvoices(ctx.db!, from, to),
                 fetchTotalCustomers(ctx.db!, from, to),
                 fetchSellerPerformance(ctx.db!, from, to),
+                fetchItemCategoryPerformance(ctx.db!, from, to),
             ])
 
             return {
                 success: true,
                 message: "Successfully fetched dashboard analytics",
-                payload: { topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance } as any
+                payload: { topCustomers, recentCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance, itemPerformance } as any
             }
 
         } catch (error) {

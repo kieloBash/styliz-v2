@@ -11,6 +11,7 @@ import { useAdminDashboardStore } from "../../_stores/adminDashboardStore"
 import AllInvoicesCard from "../all-invoices"
 import EditInvoiceModal from "../edit-invoice-modal"
 import { AdminBulkEditModal } from "./admin/bulk-edit-modal"
+import { CategoryBreakdownCard } from "./admin/category-breakdown-card"
 import { columns } from "./admin/columns"
 import AdminRecentCustomerCard from "./admin/recent-customers-card"
 import AdminSellerBreakdownCard from "./admin/seller-breakdown"
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
         to: filterToDateParams ? new Date(filterToDateParams).toISOString() : new Date().toISOString(),
     })
 
-    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance } = useMemo(() => ({
+    const { recentCustomers, topCustomers, totalRevenue, totalItems, totalInvoices, totalCustomers, sellerPerformance, itemPerformance } = useMemo(() => ({
         recentCustomers: analytics.data?.payload?.recentCustomers ?? [],
         topCustomers: analytics.data?.payload?.topCustomers ?? [],
         totalRevenue: analytics.data?.payload?.totalRevenue,
@@ -42,6 +43,7 @@ const AdminDashboard = () => {
         totalInvoices: analytics.data?.payload?.totalInvoices,
         totalCustomers: analytics.data?.payload?.totalCustomers,
         sellerPerformance: analytics.data?.payload?.sellerPerformance ?? [],
+        itemPerformance: analytics.data?.payload?.itemPerformance ?? []
     }), [analytics])
 
     const invoices = trpc.invoice.getList.useQuery({
@@ -126,6 +128,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="grid gap-6 lg:col-span-2 col-span-1">
                         <AdminSellerBreakdownCard data={sellerPerformance} />
+                        <CategoryBreakdownCard categories={itemPerformance} />
                         <AdminTopCustomerCard data={topCustomers} />
                         <AdminRecentCustomerCard data={recentCustomers} />
                     </div>

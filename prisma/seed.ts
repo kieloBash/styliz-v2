@@ -1,4 +1,3 @@
-import { DEFAULT_MINIMUM_RATE } from "@/constants/formats";
 import { SELLERS } from "@/constants/seller-data";
 import { prisma } from "@/prisma";
 import { UserRole } from "@/types/roles";
@@ -91,7 +90,8 @@ async function main() {
         emailVerified: new Date(),
         userProfile: {
           create: {
-            rate: user.rate
+            rate: user.rate,
+            color: "bg-rose-500"
           }
         }
       },

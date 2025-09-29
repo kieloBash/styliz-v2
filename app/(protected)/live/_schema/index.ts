@@ -29,3 +29,10 @@ export const CreateInvoiceSchema = z.object({
     ).min(1, "At least one item is required"),
 });
 
+export type CreateItemCategoryType = z.infer<typeof CreateItemCategorySchema>;
+export const CreateItemCategorySchema = z.object({
+    name: z.string(),
+    color: z.string(),
+    icon: z.optional(z.string()),
+    quickPrices: z.array(z.number().positive()).min(1),
+})
