@@ -25,6 +25,7 @@ const ExtractCSV = () => {
             const totalRows = data.payload?.total || [];
             const lossRows = data.payload?.lossSheet || [];
             const gainRows = data.payload?.gainSheet || [];
+            const analyticsRows = data.payload?.analyticsSheet || [];
 
             if (totalRows.length === 0) return;
 
@@ -35,9 +36,10 @@ const ExtractCSV = () => {
             const jsonToSheet = (rows: any[]) => XLSX.utils.json_to_sheet(rows);
 
             // Add sheets
-            XLSX.utils.book_append_sheet(wb, jsonToSheet(totalRows), "Total");
-            XLSX.utils.book_append_sheet(wb, jsonToSheet(lossRows), "Loss");
+            XLSX.utils.book_append_sheet(wb, jsonToSheet(analyticsRows), "Analytics");
             XLSX.utils.book_append_sheet(wb, jsonToSheet(gainRows), "Gain");
+            XLSX.utils.book_append_sheet(wb, jsonToSheet(lossRows), "Loss");
+            XLSX.utils.book_append_sheet(wb, jsonToSheet(totalRows), "Total");
 
             // Filename
             const filename = `Analytics-${filterFromDateParams}-to-${filterToDateParams}.xlsx`;

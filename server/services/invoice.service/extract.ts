@@ -101,7 +101,7 @@ export const extractAnalytics = protectedProcedure
             const SALARY_SELLER: Record<string, number> = {
                 "PHALOMA": 550,
                 "JAI": 500,
-                "LIZ": 550,
+                "LIZ": 300,
                 "ZIA": 550,
                 "SHEIN": 450,
                 "SAM": 450,
@@ -116,7 +116,7 @@ export const extractAnalytics = protectedProcedure
                 return {
                     ...row,
                     Earnings: earnings,
-                    "Gain/Loss": earnings <= 100 ? "LOSS" : "GAIN"
+                    "Gain/Loss": earnings <= 0 ? "LOSS" : "GAIN"
                 };
             });
 
@@ -125,10 +125,46 @@ export const extractAnalytics = protectedProcedure
             const lossSheet = results.filter((d) => d["Gain/Loss"] === "LOSS");
             const gainSheet = results.filter((d) => d["Gain/Loss"] === "GAIN");
 
+            // --- ANALYTICS SHEET ---
+            const analyticsMap: Record<
+                string,
+                { Seller: string; TOTAL_GAIN: number; TOTAL_LOSS: number; GRAND_TOTAL: number }
+            > = {};
+
+            for (const row of results) {
+                const seller = row.Seller;
+                if (!analyticsMap[seller]) {
+                    analyticsMap[seller] = {
+                        Seller: seller,
+                        TOTAL_GAIN: 0,
+                        TOTAL_LOSS: 0,
+                        GRAND_TOTAL: 0,
+                    };
+                }
+
+                if (row["Gain/Loss"] === "GAIN") {
+                    analyticsMap[seller].TOTAL_GAIN += row.Earnings;
+                } else {
+                    analyticsMap[seller].TOTAL_LOSS += row.Earnings;
+                }
+
+                analyticsMap[seller].GRAND_TOTAL += row.Earnings;
+            }
+
+            // Convert to array and calculate PERCENTAGE_OF_LOSS
+            const analyticsSheet = Object.values(analyticsMap).map(s => ({
+                Seller: s.Seller,
+                "TOTAL GAIN": s.TOTAL_GAIN,
+                "TOTAL LOSS": s.TOTAL_LOSS,
+                "GRAND TOTAL": s.GRAND_TOTAL,
+                "PERCENTAGE OF LOSS":
+                    s.GRAND_TOTAL !== 0 ? ((s.TOTAL_LOSS / s.TOTAL_GAIN) * 100).toFixed(2) + "%" : "0%",
+            }));
+
             return {
                 success: true,
                 message: "Successfully extracted invoices",
-                payload: { total: results, lossSheet, gainSheet },
+                payload: { total: results, lossSheet, gainSheet, analyticsSheet },
             };
         } catch (error) {
             const message = "failed to extract invoices";
