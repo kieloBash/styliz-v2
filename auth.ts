@@ -3,9 +3,7 @@ import NextAuth, { DefaultSession } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import authConfig from "./auth.config";
 import { CustomPrismaAdapter } from "./lib/adapter";
-import { getIpFromRequest } from "./lib/request";
 import { createLoginAuditLog } from "./lib/audit-logs";
-import { logger } from "./utils/logger";
 
 export type ExtendedUser = DefaultSession["user"] & {
     role: string;
