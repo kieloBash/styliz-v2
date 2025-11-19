@@ -1,14 +1,11 @@
-import { auth } from "./auth";
 import { NextResponse } from "next/server";
+import { auth } from "./auth";
 import { apiAuthPrefix, authRoutes, DEFAULT_LOGIN_REDIRECT, publicRoutes } from "./routes";
-import { getToken } from "next-auth/jwt";
 
 
 export default auth(async (req: any) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
-
-    // const token = await getToken({ req, secret: process.env.AUTH_SECRET });
 
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isPublicRoute = publicRoutes.some((route) => {
@@ -28,15 +25,15 @@ export default auth(async (req: any) => {
     }
 
     if (!isLoggedIn && !isPublicRoute) {
-        let callbackUrl = nextUrl.pathname;
-        if (nextUrl.search) {
-            callbackUrl += nextUrl.search;
-        }
-        const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+        // let callbackUrl = nextUrl.pathname;
+        // if (nextUrl.search) {
+        //     callbackUrl += nextUrl.search;
+        // }
+        // const encodedCallbackUrl = encodeURIComponent(callbackUrl);
 
         const url = new URL("/auth/sign-in", req.url);
-        url.searchParams.set("reason", "SignedOut");
-        url.searchParams.set("callbackUrl", encodedCallbackUrl);
+        // url.searchParams.set("reason", "SignedOut");
+        // url.searchParams.set("callbackUrl", encodedCallbackUrl);
 
         return NextResponse.redirect(url);
     }
