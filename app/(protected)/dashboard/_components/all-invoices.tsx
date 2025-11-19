@@ -18,6 +18,7 @@ import { ChevronLeft, ChevronRight, FileText, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { InvoiceDataTable } from './data-table'
+import ExtractCSV from './pages/admin/extract-csv'
 
 type Props = {
     columns: ColumnDef<FullInvoiceType>[];
@@ -191,6 +192,8 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
         </div>
     ), [UserRole.SELLER])
 
+    const DisplayAdminExtractCSV = withRole(() => <ExtractCSV />, [UserRole.ADMIN]);
+
     const DisplaySellerSelect = withRole(() => <SellerSelectBar paramName={"sellerId"} />, [UserRole.ADMIN])
 
     const totalItemsSelected = useMemo(() =>
@@ -241,6 +244,7 @@ const AllInvoicesCard = ({ columns, pageCount = 0, totalInvoices = 0, data, isLo
                                 </SelectContent>
                             </Select>
                             {/* Admins */}
+                            <DisplayAdminExtractCSV role={getRole(user?.role)} />
                         </div>
                         {/* Sellers */}
                         <DisplayDatePickers role={getRole(user?.role)} />

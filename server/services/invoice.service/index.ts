@@ -7,6 +7,7 @@ import { getRecentCustomers } from "./getRecentCustomers";
 import { getTopCustomers } from "./getTopCustomers";
 import { updateInvoice } from "./update";
 import { bulkDeleteInvoices } from "./bulkDelete";
+import { extractAnalytics } from "./extract";
 
 export const invoiceRoute = {
     create: createInvoice,
@@ -18,5 +19,7 @@ export const invoiceRoute = {
     getDashboardAnalytics: getDashboardAnalytics,
     delete: {
         bulk: bulkDeleteInvoices
-    }
+    },
+    extract: extractAnalytics
+
 } satisfies TRPCRouterRecord;
